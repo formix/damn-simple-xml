@@ -12,7 +12,7 @@ hierarchy in your mind, then damn-simple-xml is the library you need.
 
 ## What damn-simple-xml is not good at?
 
-1. If you have a complex document that combines text at the same level as other xml nodes then *damn-simple-xml* is not for you:
+### 1. If you have a complex document that combines text at the same level as other xml nodes then *damn-simple-xml* is not for you:
 
 ```xml
 <root>
@@ -24,12 +24,12 @@ hierarchy in your mind, then damn-simple-xml is the library you need.
 </root>
 ```
 
-2. Reading XML schemas
+### 2. Reading XML schemas
 
 *damn-simple-xml* extrapolates object hierarchies, subtypes and arrays
 directly from the given XML data. XML schema definition is of no use.
 
-3. XML Serialization
+### 3. XML Serialization
 
 *damn-simple-xml* does not support JSON to XML serialization yet. I
 plan to add that feature in a future release.
