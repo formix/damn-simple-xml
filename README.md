@@ -148,7 +148,7 @@ array as in point 2.
 
 ## Usage
 
-Having the variable xmlString containing:
+Having the variable named *xmlString* containing:
 ```xml
 <employee id="123">
   <firstName>John</firstName>
