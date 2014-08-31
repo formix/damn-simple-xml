@@ -160,8 +160,9 @@ Having the variable xmlString containing:
 This code:
 ```javascript
 var xml2json = require("damn-simple-xml");
-var pair = xml2json.deserialize(xmlString);
-console.log(pair);
+xml2json.deserialize(xmlString, function(pair) {
+   console.log(pair); 
+});
 ```
 
 Will print:
