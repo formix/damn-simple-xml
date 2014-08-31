@@ -77,7 +77,7 @@ Attributes are directly rendered as fields in the resulting object.
     firstName: "John",
     lastName: "Doe",
     dateOfBirth: "1984-03-27T00:00:00.000Z",
-    languages: ["Java", ""C++", "C#", JavaScript"]
+    languages: ["Java", "C++", "C#", JavaScript"]
 }
 ```
 
@@ -120,7 +120,7 @@ Attributes are directly rendered as fields in the resulting object.
 **4. When there is no second node with the same name then an object is created**
 
 That's an expected behavior as described in point 3. But that may be a
-little bit confusing when other object of the same kind contains an 
+little bit confusing when other objects of the same kind contains an 
 array as in point 2.
 
 ```xml
