@@ -147,3 +147,25 @@ array as in point 2.
 }
 ```
 
+## Usage
+
+```javascript
+var xml2json = require("damn-simple-xml");
+var pair = xml2json.deserialize(xmlString);
+console.log(pair);
+```
+
+Will print:
+
+```javascript
+{
+    root: "employee",
+    data: {
+        id: 123,
+        firstName: "John",
+        lastName: "Doe",
+        dateOfBirth: "1984-03-27T00:00:00.000Z"
+    }
+}
+```
+
