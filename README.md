@@ -10,7 +10,7 @@ formely serialized object from another language like C# or Java.
 
 ## What damn-simple-xml is not good for?
 
-**1. If you have a complex document that combines text at the same level as other xml nodes, it'S not gonna work:**
+**1. If you have a complex document that combines text at the same level as other xml nodes, it's not a good mix**
 
 ```xml
 <root>
