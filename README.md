@@ -77,7 +77,7 @@ Attributes are directly rendered as fields in the resulting object.
     firstName: "John",
     lastName: "Doe",
     dateOfBirth: "1984-03-27T00:00:00.000Z",
-    languages: ["Java", "C++", "C#", JavaScript"]
+    languages: ["Java", "C++", "C#", "JavaScript"]
 }
 ```
 
