@@ -116,7 +116,6 @@ Attributes are directly rendered as fields in the resulting object.
     }
 }
 ```
-```
 
 **4. When there is no second node with the same name then an object is created**
 
