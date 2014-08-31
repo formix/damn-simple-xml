@@ -148,6 +148,16 @@ array as in point 2.
 
 ## Usage
 
+Having the variable xmlString containing:
+```xml
+<employee id="123">
+  <firstName>John</firstName>
+  <lastName>Doe</lastName>
+  <dateOfBirth>1984-03-12T00:00:00.000Z</dateOfBirth>
+</employee>
+```
+
+This code:
 ```javascript
 var xml2json = require("damn-simple-xml");
 var pair = xml2json.deserialize(xmlString);
@@ -155,7 +165,6 @@ console.log(pair);
 ```
 
 Will print:
-
 ```javascript
 {
     root: "employee",
