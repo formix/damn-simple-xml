@@ -141,7 +141,7 @@ array as in point 2.
     lastName: "Doe",
     dateOfBirth: "1984-03-27T00:00:00.000Z",
     languages: {
-        language: "C#"
+        language: "Java"
     }
 }
 ```
