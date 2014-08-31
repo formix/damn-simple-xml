@@ -1,6 +1,6 @@
 {
     "name"          : "damn-simple-xml",
-    "version"       : "0.5.0",
+    "version"       : "0.5.1",
     "description"   : "A Simple XML to JSON deserializer",
     "author"        : "Jean-Philippe Gravel <jeanphilippe.gravel@gmail.com>",
     "homepage"      : "https://github.com/formix/damn-simple-xml",
