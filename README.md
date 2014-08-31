@@ -48,8 +48,102 @@ Attributes are directly rendered as fields in the resulting object.
 
 ```javascript
 {
+    id: 123,
     firstName: "John",
     lastName: "Doe",
-    dateOfBirth: 1984-03-27T00:00:00.000Z
+    dateOfBirth: "1984-03-27T00:00:00.000Z"
 }
 ```
+
+**2. Arrays are discovered when a second node with the same name is found**
+
+```xml
+<employee id="123">
+  <firstName>John</firstName>
+  <lastName>Doe</lastName>
+  <dateOfBirth>1984-03-12T00:00:00.000Z</dateOfBirth>
+  <languages>
+    <language>Java</language>
+    <language>C++</language>
+    <language>C#</language>
+    <language>JavaScript</language>
+  </languages>
+</employee>
+```
+
+```javascript
+{
+    id: 123,
+    firstName: "John",
+    lastName: "Doe",
+    dateOfBirth: "1984-03-27T00:00:00.000Z",
+    languages: ["Java", ""C++", "C#", JavaScript"]
+}
+```
+
+**3. Objects are created all the way down**
+
+```xml
+<employee id="123">
+  <firstName>John</firstName>
+  <lastName>Doe</lastName>
+  <dateOfBirth>1984-03-12T00:00:00.000Z</dateOfBirth>
+  <department>
+    <name>Marketting</name>
+    <level>4</level>
+    <supervisor>
+      <firstName>Amanda</name>
+      <lastName>Clarke</lastName>
+      <email>amanda.clarke@revenge.tv</email>
+    <supervisor>
+  </department>
+</employee>
+```
+
+```javascript
+{
+    id: 123,
+    firstName: "John",
+    lastName: "Doe",
+    dateOfBirth: "1984-03-27T00:00:00.000Z",
+    department: {
+        name: "Marketting",
+        supervisor: {
+            firstName: "Amanda",
+            lastName: "Clarke",
+            email: "amanda.clarke@revenge.tv"
+        }
+    }
+}
+```
+```
+
+**4. When there is no second node with the same name then an object is created**
+
+That's an expected behavior as described in point 3. But that may be a
+little bit confusing when other object of the same kind contains an 
+array as in point 2.
+
+```xml
+<employee id="123">
+  <firstName>John</firstName>
+  <lastName>Doe</lastName>
+  <dateOfBirth>1984-03-12T00:00:00.000Z</dateOfBirth>
+  <languages>
+    <language>Java</language>
+  </languages>
+</employee>
+```
+
+```javascript
+{
+    id: 123,
+    firstName: "John",
+    lastName: "Doe",
+    dateOfBirth: "1984-03-27T00:00:00.000Z",
+    languages: {
+        language: "C#"
+    }
+}
+```
+
