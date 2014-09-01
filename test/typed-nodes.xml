@@ -1,0 +1,9 @@
+<types>
+    <string>This is a string</string>
+    <number>125.3</number>
+    <bool>false</bool>
+    <date1>2014-08-31</date1>
+    <date2>2014-08-31T22:38</date2>
+    <date3>2014-08-31T22:38:45</date3>
+    <date4>2014-08-31T22:38:45.123Z</date4>
+</types>

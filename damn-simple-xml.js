@@ -15,9 +15,14 @@ exports.deserialize = function(xmlstring, callback) {
     };
 
     parser.onopentag = function(node) {
+        var obj = {};
+        for (var key in node.attributes) {
+            obj[key] = convert(node.attributes[key]);
+        }
+
         stack.push({
             root: node.name,
-            data: node.attributes
+            data: obj
         });
     };
 
@@ -65,6 +70,12 @@ function convert(value) {
             res = Number(value);
         } else if (value.match(/^(true|false)$/)) {
             res = value == "true";
+        } else if (value.match(/\d{4}-[01]\d-[0-3]\d(T[0-2]\d:[0-5]\d(:[0-5]\d(\.\d+([+-][0-2]\d:[0-5]\d|Z)?)?)?)?/)) {
+            if (value.length == 10) {
+                res = new Date(value + "T00:00:00.000Z");
+            } else {
+                res = new Date(value);
+            }
         }
     }
     return res;
