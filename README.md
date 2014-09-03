@@ -32,7 +32,7 @@ plan to add that feature in a future release.
 
 ## Behavior
 
-1. Attributes are directly rendered as fields in the resulting object.
+1) Attributes are directly rendered as fields in the resulting object.
 
 ```xml
 <employee id="123">
@@ -51,7 +51,7 @@ plan to add that feature in a future release.
 }
 ```
 
-2. Arrays are discovered when a second node with the same name is found
+2) Arrays are discovered when a second node with the same name is found
 
 ```xml
 <employee id="123">
@@ -77,7 +77,7 @@ plan to add that feature in a future release.
 }
 ```
 
-3. objects are created all the way down
+3) objects are created all the way down
 
 ```xml
 <employee id="123">
@@ -113,7 +113,7 @@ plan to add that feature in a future release.
 }
 ```
 
-4. When there is no second node with the same name then an object is created
+4) When there is no second node with the same name then an object is created
 
 That's an expected behavior as described in point 3. But that may be a
 little bit confusing when other objects of the same kind contains an 
