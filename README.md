@@ -10,33 +10,29 @@ formely serialized object from another language like C# or Java.
 
 ## What damn-simple-xml is not good for?
 
-**1. If you have a complex document that combines text at the same level as other xml nodes, it's not a good mix**
+*damn-simple-xml* does not cope whell with text mixed with elements on
+the same level.
 
 ```xml
 <root>
   <elements>
-    damn-simple-xml will not be able to do anything with this XML!
+    Do not expect damn-simple-xml to cope well with this XML!
     <sub-element>plain text</sub-element>
     <sub-element attribute="value">element with attribute</sub-element>
   </elements>
 </root>
 ```
 
-**2. Reading XML schemas**
-
-*damn-simple-xml* extrapolates object hierarchies, subtypes and arrays
-directly from the given XML data. XML schema definition is of no use.
-
-**3. XML Serialization**
+*damn-simple-xml* do not need XML schemas. It extrapolates object 
+hierarchies, subtypes and arrays directly from the given XML data. 
+An XML schema definition is of no use.
 
 *damn-simple-xml* does not support JSON to XML serialization yet. I
 plan to add that feature in a future release.
 
 ## Behavior
 
-**1. Attributes are rendered as fields**
-
-Attributes are directly rendered as fields in the resulting object.
+1. Attributes are directly rendered as fields in the resulting object.
 
 ```xml
 <employee id="123">
@@ -55,7 +51,7 @@ Attributes are directly rendered as fields in the resulting object.
 }
 ```
 
-**2. Arrays are discovered when a second node with the same name is found**
+2. Arrays are discovered when a second node with the same name is found
 
 ```xml
 <employee id="123">
@@ -81,7 +77,7 @@ Attributes are directly rendered as fields in the resulting object.
 }
 ```
 
-**3. Objects are created all the way down**
+3. objects are created all the way down
 
 ```xml
 <employee id="123">
@@ -117,7 +113,7 @@ Attributes are directly rendered as fields in the resulting object.
 }
 ```
 
-**4. When there is no second node with the same name then an object is created**
+4. When there is no second node with the same name then an object is created
 
 That's an expected behavior as described in point 3. But that may be a
 little bit confusing when other objects of the same kind contains an 
@@ -159,8 +155,8 @@ Having the variable named *xmlString* containing:
 
 This code:
 ```javascript
-var xml2json = require("damn-simple-xml");
-xml2json.deserialize(xmlString, function(pair) {
+var dsx = require("damn-simple-xml");
+dsx.deserialize(xmlString, function(pair) {
    console.log(pair); 
 });
 ```
