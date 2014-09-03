@@ -113,6 +113,37 @@ describe("DamnSimpleXml.deserialize()", function() {
         }); 
     });
 
+
+    describe("array.xml", function() {
+        var data = fs.readFileSync("test/array.xml", {
+            encoding: "utf8"
+        });
+        
+        it("should be an array containing two items", function(done) {
+            dsx.deserialize(data, function(pair) {
+                assert.equal(pair.data.length, 2);
+                done();
+            });
+        });
+
+        it("should contains an employee with only one language as an " +
+                "object.", function(done) {
+            dsx.deserialize(data, function(pair) {
+                assert.ok(pair.data[0].languages["language"]);
+                done();
+            });
+        });
+
+        it("should contains an employee with many languages as a " +
+                "string array.", function(done) {
+            dsx.deserialize(data, function(pair) {
+                assert.ok(pair.data[1].languages.length > 0);
+                done();
+            });
+        });
+
+    });
+
 });
 
 

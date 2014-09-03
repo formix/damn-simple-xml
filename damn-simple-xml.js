@@ -32,7 +32,7 @@ exports.deserialize = function(xmlstring, callback) {
             if (stack.peek().data.isArray) {
                 // Already an array, just push the data.
                 stack.peek().data.push(pair.data);
-            } else if (typeof(stack.peek().data[pair.root]) === "object") {
+            } else if (typeof(stack.peek().data[pair.root]) !== "undefined") {
                 // This is the second time we encouter a node at the same
                 // root. It means that we are in an array.
                 var data = stack.peek().data[pair.root];
