@@ -5,30 +5,87 @@ Simple XML to JSON deserializer for Node
 
 ## What damn-simple-xml is good for?
 
-*damn-simple-xml* does a really good job at deserializing XML data of a
+*damn-simple-xml* (or DSX) does a really good job at deserializing XML data of a
 formely serialized object from another language like C# or Java.
 
-## What damn-simple-xml is not good for?
+## Usage
 
-*damn-simple-xml* does not cope whell with text mixed with elements on
-the same level.
-
+Having the variable named *xmlString* containing:
 ```xml
-<root>
-  <elements>
-    Do not expect damn-simple-xml to cope well with this XML!
-    <sub-element>plain text</sub-element>
-    <sub-element attribute="value">element with attribute</sub-element>
-  </elements>
-</root>
+<employee id="123">
+  <firstName>John</firstName>
+  <lastName>Doe</lastName>
+  <dateOfBirth>1984-03-12T00:00:00.000Z</dateOfBirth>
+</employee>
 ```
 
-*damn-simple-xml* do not need XML schemas. It extrapolates object 
-hierarchies, subtypes and arrays directly from the given XML data. 
-An XML schema definition is of no use.
+This code:
+```javascript
+var dsx = require("damn-simple-xml");
+dsx.deserialize(xmlString, function(pair) {
+   console.log(pair); 
+});
+```
 
-*damn-simple-xml* does not support JSON to XML serialization yet. I
-plan to add that feature in a future release.
+Will print:
+```javascript
+{
+    root: "employee",
+    data: {
+        id: 123,
+        firstName: "John",
+        lastName: "Doe",
+        dateOfBirth: "1984-03-27T00:00:00.000Z"
+    }
+}
+```
+
+As described in the Behavior section, DSX will create arrays when meeting
+the second occurence of the same node name at the same level. Sometimes,
+it may be more convenient to declare which fields should be instanciated as
+array up front. To do this, you can call *damn-simple-xml* with an object 
+instead of an xmlstring as first parameter. That object must contain the
+following fields:
+
+* xml: The XML string.
+* arrayNames: An array of strings containing all field names that have to be created as an array instead of an object.
+
+For example, if `xmlstrinig = `
+```xml
+<employee id="123">
+  <firstName>John</firstName>
+  <lastName>Doe</lastName>
+  <dateOfBirth>1984-03-12T00:00:00.000Z</dateOfBirth>
+  <languages>
+    <language>Java</language>
+  </languages>
+</employee>
+```
+
+This code:
+```javascript
+var dsx = require("damn-simple-xml");
+dsx.deserialize({
+        xml: xmlstring,
+        arrayNames: ["languages"]
+    }, function(pair) {
+   console.log(pair); 
+});
+```
+
+Will print:
+```javascript
+{
+    root: "employee",
+    data: {
+        id: 123,
+        firstName: "John",
+        lastName: "Doe",
+        dateOfBirth: "1984-03-27T00:00:00.000Z",
+        languages: ["Java"]
+    }
+}
+```
 
 ## Behavior
 
@@ -141,36 +198,3 @@ array as in point 2.
     }
 }
 ```
-
-## Usage
-
-Having the variable named *xmlString* containing:
-```xml
-<employee id="123">
-  <firstName>John</firstName>
-  <lastName>Doe</lastName>
-  <dateOfBirth>1984-03-12T00:00:00.000Z</dateOfBirth>
-</employee>
-```
-
-This code:
-```javascript
-var dsx = require("damn-simple-xml");
-dsx.deserialize(xmlString, function(pair) {
-   console.log(pair); 
-});
-```
-
-Will print:
-```javascript
-{
-    root: "employee",
-    data: {
-        id: 123,
-        firstName: "John",
-        lastName: "Doe",
-        dateOfBirth: "1984-03-27T00:00:00.000Z"
-    }
-}
-```
-
