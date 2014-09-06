@@ -134,10 +134,39 @@ describe("DamnSimpleXml.deserialize()", function() {
             });
         });
 
-        it("should contains an employee with many languages as a " +
-                "string array.", function(done) {
+        it("should contains an employee with only one language as an " +
+                "array", function(done) {
+            dsx.deserialize({
+                xml: data,
+                arrayNames: ["languages"]
+            }, function(pair) {
+                assert.ok(pair.data[0].languages.length == 1);
+                done();
+            });
+        });
+
+        it("should contains an employee with many languages as an " +
+                "array.", function(done) {
             dsx.deserialize(data, function(pair) {
                 assert.ok(pair.data[1].languages.length > 0);
+                done();
+            });
+        });
+
+    });
+
+
+    describe("cdata.xml", function() {
+
+        var data = fs.readFileSync("test/cdata.xml", {
+            encoding: "utf8"
+        });
+
+        it("should contain a string with invalid xml " +
+                "characters", function(done) {
+            dsx.deserialize(data, function(pair) {
+                assert.equal(pair.data, 
+                        "This is an <unparsed /> cdata block.");
                 done();
             });
         });

@@ -1,7 +1,12 @@
 
 Array.prototype.isArray = true;
 
-exports.deserialize = function(xmlstring, callback) {
+exports.deserialize = function(options, callback) {
+
+    var arrayNameSet = {};
+    if (typeof(options) === "object") {
+        arrayNameSet = createSet(options.arrayNames);
+    } 
 
     var sax = require("sax");
     var parser = sax.parser(true); // strict parser.
@@ -10,12 +15,14 @@ exports.deserialize = function(xmlstring, callback) {
         return this[this.length - 1];
     }
 
+
     parser.onerror = function(err) {
         throw err;
-    };
+    }
+
 
     parser.onopentag = function(node) {
-        var obj = {};
+        var obj = createObject(node.name, arrayNameSet);
         for (var key in node.attributes) {
             obj[key] = convert(node.attributes[key]);
         }
@@ -24,7 +31,8 @@ exports.deserialize = function(xmlstring, callback) {
             root: node.name,
             data: obj
         });
-    };
+    }
+
 
     parser.onclosetag = function() {
         var pair = stack.pop();
@@ -46,7 +54,8 @@ exports.deserialize = function(xmlstring, callback) {
         } else {
             callback(pair); // parsing ends here!
         }
-    };
+    }
+
 
     parser.ontext = function(text) {
         if (text.trim() === "") {
@@ -56,8 +65,27 @@ exports.deserialize = function(xmlstring, callback) {
             stack.peek().data = "";
         }
         stack.peek().data += text;
-    };
+    }
 
+
+    var cdata = "";
+    parser.onopencdata = function() {
+        cdata = "";
+    }
+
+    parser.oncdata = function(text) {
+        cdata += text;
+    }
+
+    parser.onclosecdata = function() {
+        parser.ontext(cdata);
+    }
+
+    
+    var xmlstring = options;
+    if (typeof(xmlstring) === "object") {
+        xmlstring = options.xml;
+    }
     parser.write(xmlstring).close();
     
 }
@@ -79,4 +107,21 @@ function convert(value) {
         }
     }
     return res;
+}
+
+
+function createSet(array) {
+    var set = {};
+    for (var i = 0; i < array.length; i++) {
+        set[array[i]] = true;
+    }
+    return set;
+}
+
+function createObject(nodeName, arrayNameSet) {
+    var obj = {};
+    if (arrayNameSet[nodeName]) {
+        obj = [];
+    }
+    return obj;    
 }
