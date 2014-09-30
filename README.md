@@ -1,7 +1,11 @@
 damn-simple-xml
 ===============
 
-Simple XML to JSON deserializer for Node
+Simple XML to JavaScript object deserializer for Node
+
+## Install
+
+`npm install damn-simple-xml`
 
 ## What damn-simple-xml is good for?
 
