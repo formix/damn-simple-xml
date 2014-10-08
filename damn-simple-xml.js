@@ -62,9 +62,19 @@ exports.deserialize = function(options, callback) {
             return;
         }
         if (typeof(stack.peek().data) === "object") {
-            stack.peek().data = "";
+            if (isEmpty(stack.peek().data)) {
+                stack.peek().data = text;
+                return;
+            } else {
+                if (stack.peek().data._text === undefined) {
+                    stack.peek().data._text = "";
+                }
+                stack.peek().data._text += text;
+                return;
+            }
+        } else if (typeof(stack.peek().data) === "string") {
+            stack.peek().data += text;
         }
-        stack.peek().data += text;
     }
 
 
@@ -124,4 +134,14 @@ function createObject(nodeName, arrayNameSet) {
         obj = [];
     }
     return obj;    
+}
+
+function isEmpty(obj) {
+    if (obj.isArray) {
+        return obj.length === 0;
+    }
+    for (var key in obj) {
+        return false;
+    }
+    return true;
 }

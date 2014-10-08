@@ -15,7 +15,8 @@ describe("DamnSimpleXml.deserialize()", function() {
         }; 
 
         it("should be equal to the expected object", function(done) {
-            fs.readFile("test/simple.xml", {encoding: "utf8"}, function(err, data) {
+            fs.readFile("test/simple.xml", {encoding: "utf8"}, 
+            function(err, data) {
                 if (err) return done(err);
                 dsx.deserialize(data, function(pair) {
                     assert.deepEqual(pair.data, expected);
@@ -35,7 +36,8 @@ describe("DamnSimpleXml.deserialize()", function() {
    
         describe(".number", function() {
             it("should be a number equal to 10", function(done) {
-                fs.readFile("test/attr-types.xml", { encoding: "utf8" }, function(err, data) {
+                fs.readFile("test/attr-types.xml", { encoding: "utf8" }, 
+                function(err, data) {
                     if (err) done(err);
                     dsx.deserialize(data, function(pair) {
                         assert.strictEqual(pair.data.numeric, 10);
@@ -47,7 +49,8 @@ describe("DamnSimpleXml.deserialize()", function() {
 
         describe(".boolTrue", function() {
             it("should be a boolean equal to true", function(done) {
-                fs.readFile("test/attr-types.xml", { encoding: "utf8" }, function(err, data) {
+                fs.readFile("test/attr-types.xml", { encoding: "utf8" }, 
+                function(err, data) {
                     if (err) done(err);
                     dsx.deserialize(data, function(pair) {
                         assert.strictEqual(pair.data.boolTrue, true);
@@ -60,7 +63,8 @@ describe("DamnSimpleXml.deserialize()", function() {
 
         describe(".boolFalse", function() {
             it("should be a boolean equal to false", function(done) {
-                fs.readFile("test/attr-types.xml", { encoding: "utf8" }, function(err, data) {
+                fs.readFile("test/attr-types.xml", { encoding: "utf8" }, 
+                function(err, data) {
                     if (err) done(err);
                     dsx.deserialize(data, function(pair) {
                         assert.strictEqual(pair.data.boolFalse, false);
@@ -72,7 +76,8 @@ describe("DamnSimpleXml.deserialize()", function() {
 
 
         describe(".date", function() {
-            it("should be a date equal to 2014-08-31T13:00:00.000Z", function(done) {
+            it("should be a date equal to 2014-08-31T13:00:00.000Z", 
+            function(done) {
                 fs.readFile("test/attr-types.xml", { 
                     encoding: "utf8" 
                 }, function(err, data) {
@@ -171,6 +176,25 @@ describe("DamnSimpleXml.deserialize()", function() {
             });
         });
 
+    });
+
+
+    describe("mixed-attribute-text.xml"), function() {
+        var expected = {
+            root: "employee",
+            data: {
+                name: "John Doe",
+                emails: [{
+                    type: "home",
+                    _text: "jdoe@home.com"
+                }, {
+                    type: "work",
+                    _text: "john.doe@work.com"
+                }]
+            }
+        };
+
+        
     });
 
 });

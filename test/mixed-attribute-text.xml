@@ -1,0 +1,9 @@
+
+<employee>
+  <name>John Doe</name>
+  <emails>
+    <email type="home">jdoe@home.com</email>
+    <email type="work">john.doe@work.com</email>
+  </emails>
+</employee>
+
