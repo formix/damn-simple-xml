@@ -179,7 +179,7 @@ describe("DamnSimpleXml.deserialize()", function() {
     });
 
 
-    describe("mixed-attribute-text.xml"), function() {
+    describe("mixed-attribute-text.xml", function() {
         var expected = {
             root: "employee",
             data: {
@@ -193,7 +193,16 @@ describe("DamnSimpleXml.deserialize()", function() {
                 }]
             }
         };
-
+        
+        it("should correspond to the expected object", function(done) {
+            var data = fs.readFileSync("test/mixed-attribute-text.xml", {
+                encoding: "utf8"
+            });
+            dsx.deserialize(data, function(pair) {
+                assert.deepEqual(pair, expected);
+                done();
+            });
+        });
         
     });
 
