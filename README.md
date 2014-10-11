@@ -215,7 +215,7 @@ content is set in a "_text" field beside other possible attributes.
 </player>
 ```
 
-Will be rendered this way in javascript object:
+Will be rendered as:
 ```javascript
 {
     name: "Tom Brady",
