@@ -3,10 +3,6 @@ damn-simple-xml
 
 Simple XML to JavaScript object deserializer for Node
 
-## Install
-
-`npm install damn-simple-xml`
-
 ## What damn-simple-xml is good for?
 
 *damn-simple-xml* (or DSX) does a really good job at deserializing XML data of a
@@ -176,9 +172,10 @@ Will print:
 
 4) When there is no second node with the same name then an object is created
 
-That's an expected behavior as described in point 3. But that may be a
-little bit confusing when other objects of the same kind contains an 
-array as in point 2.
+This is what DSX will do by default but you can override this behavior by 
+providing an object to the deserialize method containing an array of field
+names that should be considered as array. See the Usage section for the 
+correct syntax.
 
 ```xml
 <employee id="123">
@@ -200,5 +197,37 @@ array as in point 2.
     languages: {
         language: "Java"
     }
+}
+```
+
+5) Elements that combine attributes and text
+
+Since version 0.5.5, when a node containing text have attributes, the text 
+content is set in a "_text" field beside other possible attributes.
+
+```xml
+<player>
+  <name>Tom Brady</name>
+  <emails>
+    <email type="personal">me@tombrady.com</email>
+    <email type="work">tom.brady@patriots.com</email>
+  </emails>
+</player>
+```
+
+Will be rendered this way in javascript object:
+```javascript
+{
+    name: "Tom Brady",
+    emails: [
+        {
+            type: "personal",
+            _text: "me@tombrady.com"
+        },
+        {
+            type: "work",
+            _text: "tom.brady@patriots.com"
+        }
+    ]
 }
 ```
