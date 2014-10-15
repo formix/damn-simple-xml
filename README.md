@@ -231,3 +231,48 @@ Will be rendered as:
     ]
 }
 ```
+
+6) Elements that combine sub-elements and text
+
+Since version 0.5.7, when a node contains both text and sub-nodes, a "_text" field
+is added to the parent node and will contains a concatenation of all sub text in the
+corresponding node.
+
+For example:
+
+```xml
+<mixed>
+
+    <nodeTextNode>
+        <node1>node 1 value</node1>
+        text
+        <node2>node 2 value</node2>
+    </nodeTextNode>
+
+    <textNodeText>
+        text1
+        <node>node value</node>
+        text2
+    </textNodeText>
+
+</mixed>
+```
+
+will produce the following object:
+
+```javascript
+{
+    root: "mixed",
+    data: { 
+        nodeTextNode: { 
+            node1: 'node 1 value',
+            _text: '\n        text\n        ',
+            node2: 'node 2 value' 
+        },
+        textNodeText: { 
+            _text: '\n        text1\n        \n        text2\n    ',
+            node: 'node value' 
+         } 
+    }
+}
+```
