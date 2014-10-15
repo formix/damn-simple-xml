@@ -12,6 +12,9 @@ exports.deserialize = function(options, callback) {
     var parser = sax.parser(true); // strict parser.
     var stack  = [];
     stack.peek = function() {
+        if (this.length === 0) {
+            throw new Error('Cannot peek an empty stack!');
+        }
         return this[this.length - 1];
     }
 
@@ -22,15 +25,24 @@ exports.deserialize = function(options, callback) {
 
 
     parser.onopentag = function(node) {
+
         var obj = createObject(node.name, arrayNameSet);
         for (var key in node.attributes) {
             obj[key] = convert(node.attributes[key]);
         }
 
+        if ((stack.length > 0) && (typeof(stack.peek().data) === "string")) {
+            var text = stack.peek().data;
+            stack.peek().data = {
+                _text: text
+            };
+        } 
+
         stack.push({
             root: node.name,
             data: obj
         });
+        
     }
 
 
@@ -64,13 +76,11 @@ exports.deserialize = function(options, callback) {
         if (typeof(stack.peek().data) === "object") {
             if (isEmpty(stack.peek().data)) {
                 stack.peek().data = text;
-                return;
             } else {
                 if (stack.peek().data._text === undefined) {
                     stack.peek().data._text = "";
                 }
                 stack.peek().data._text += text;
-                return;
             }
         } else if (typeof(stack.peek().data) === "string") {
             stack.peek().data += text;
