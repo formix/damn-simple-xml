@@ -25,7 +25,7 @@ function deserialize(xml, callback) {
     }
 
     var arrays = {};
-    if (this.options) {
+    if (this.options && this.options.arrays) {
         arrays = this.options.arrays;
     }
 
