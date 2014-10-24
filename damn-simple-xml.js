@@ -37,7 +37,7 @@ function deserialize(xml, callback) {
     }
 
     parser.onopentag = function(node) {
-        var obj = createObject(node.name, arrays);
+        var obj = createObject(stack, node.name, arrays);
         for (var key in node.attributes) {
             obj[key] = convert(node.attributes[key]);
         }
@@ -145,12 +145,21 @@ function createSet(array) {
     return set;
 }
 
-function createObject(nodeName, arrayNameSet) {
+function createObject(stack, nodeName, arrayNameSet) {
     var obj = {};
-    if (arrayNameSet[nodeName]) {
+    var fullName = createNodeName(stack, nodeName);
+    if (arrayNameSet[fullName]) {
         obj = [];
     }
     return obj;    
+}
+
+function createNodeName(stack, nodeName) {
+    var name = "";
+    for (var i = 0; i < stack.length; i++) {
+        name += stack[i].root + ".";
+    }
+    return name + nodeName;
 }
 
 function isEmpty(obj) {
