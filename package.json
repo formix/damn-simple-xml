@@ -1,7 +1,7 @@
 {
     "name"          : "damn-simple-xml",
-    "version"       : "0.5.4",
-    "description"   : "A Simple XML to JSON deserializer",
+    "version"       : "0.5.7",
+    "description"   : "A Simple XML to Javascript object deserializer",
     "author"        : "Jean-Philippe Gravel <jeanphilippe.gravel@gmail.com>",
     "homepage"      : "https://github.com/formix/damn-simple-xml",
     "bugs"          : "https://github.com/formix/damn-simple-xml/issues",
@@ -11,7 +11,7 @@
     },
     "license"       : "Apache-2.0",
     "main"          : "damn-simple-xml.js",
-    "keywords"      : ["xml", "json"],
+    "keywords"      : ["xml", "serialization", "deserialization"],
 
     "dependencies"  : {
         "sax" : "0.6.0"

@@ -1,0 +1,15 @@
+<mixed>
+
+    <nodeTextNode>
+        <node1>node 1 value</node1>
+        text
+        <node2>node 2 value</node2>
+    </nodeTextNode>
+
+    <textNodeText>
+        text1
+        <node>node value</node>
+        text2
+    </textNodeText>
+
+</mixed>

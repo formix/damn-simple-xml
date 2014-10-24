@@ -3,10 +3,6 @@ damn-simple-xml
 
 Simple XML to JavaScript object deserializer for Node
 
-## Install
-
-`npm install damn-simple-xml`
-
 ## What damn-simple-xml is good for?
 
 *damn-simple-xml* (or DSX) does a really good job at deserializing XML data of a
@@ -176,9 +172,10 @@ Will print:
 
 4) When there is no second node with the same name then an object is created
 
-That's an expected behavior as described in point 3. But that may be a
-little bit confusing when other objects of the same kind contains an 
-array as in point 2.
+This is what DSX will do by default but you can override this behavior by 
+providing an object to the deserialize method containing an array of field
+names that should be considered as array. See the Usage section for the 
+correct syntax.
 
 ```xml
 <employee id="123">
@@ -199,6 +196,83 @@ array as in point 2.
     dateOfBirth: "1984-03-27T00:00:00.000Z",
     languages: {
         language: "Java"
+    }
+}
+```
+
+5) Elements that combine attributes and text
+
+Since version 0.5.5, when a node containing text have attributes, the text 
+content is set in a "_text" field beside other possible attributes.
+
+```xml
+<player>
+  <name>Tom Brady</name>
+  <emails>
+    <email type="personal">me@tombrady.com</email>
+    <email type="work">tom.brady@patriots.com</email>
+  </emails>
+</player>
+```
+
+Will be rendered as:
+```javascript
+{
+    name: "Tom Brady",
+    emails: [
+        {
+            type: "personal",
+            _text: "me@tombrady.com"
+        },
+        {
+            type: "work",
+            _text: "tom.brady@patriots.com"
+        }
+    ]
+}
+```
+
+6) Elements that combine sub-elements and text
+
+Since version 0.5.7, when a node contains both text and sub-nodes, a "_text" field
+is added to the parent node and will contains a concatenation of all sub text in the
+corresponding node.
+
+For example:
+
+```xml
+<mixed>
+
+    <nodeTextNode>
+        <node1>node 1 value</node1>
+        text
+        <node2>node 2 value</node2>
+    </nodeTextNode>
+
+    <textNodeText>
+        text1
+        <node>node value</node>
+        text2
+    </textNodeText>
+
+</mixed>
+```
+
+will produce the following object:
+
+```javascript
+{
+    root: "mixed",
+    data: { 
+        nodeTextNode: { 
+            node1: 'node 1 value',
+            _text: '\n        text\n        ',
+            node2: 'node 2 value' 
+        },
+        textNodeText: { 
+            _text: '\n        text1\n        \n        text2\n    ',
+            node: 'node value' 
+         } 
     }
 }
 ```
