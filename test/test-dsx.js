@@ -143,7 +143,10 @@ describe("DamnSimpleXml.deserialize()", function() {
         it("should contains an employee with only one language as an " +
                 "array", function(done) {
             var dsx = new Serializer({
-                arrays: ["employees.employee.languages"]
+                arrays: {
+                    "employees": "employee",
+                    "employees.employee.languages": "language"
+                }
             });
             dsx.deserialize(data, function(pair) {
                 assert.ok(pair.data[0].languages.length == 1);

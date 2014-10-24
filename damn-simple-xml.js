@@ -5,11 +5,6 @@ Array.prototype.isArray = true;
 
 module.exports = function(options) {
     this.options = options;
-    if (options === undefined) {
-        this._arrays = {};
-    } else {
-        this._arrays = createSet(options.arrays);
-    }
     this.deserialize = deserialize;
 }
 
@@ -29,7 +24,10 @@ function deserialize(xml, callback) {
         return this[this.length - 1];
     }
 
-    var arrays = this._arrays;
+    var arrays = {};
+    if (this.options) {
+        arrays = this.options.arrays;
+    }
 
 
     parser.onerror = function(err) {
@@ -137,14 +135,6 @@ function convert(value) {
 }
 
 
-function createSet(array) {
-    var set = {};
-    for (var i = 0; i < array.length; i++) {
-        set[array[i]] = true;
-    }
-    return set;
-}
-
 function createObject(stack, nodeName, arrayNameSet) {
     var obj = {};
     var fullName = createNodeName(stack, nodeName);
@@ -154,6 +144,7 @@ function createObject(stack, nodeName, arrayNameSet) {
     return obj;    
 }
 
+
 function createNodeName(stack, nodeName) {
     var name = "";
     for (var i = 0; i < stack.length; i++) {
@@ -161,6 +152,7 @@ function createNodeName(stack, nodeName) {
     }
     return name + nodeName;
 }
+
 
 function isEmpty(obj) {
     if (obj.isArray) {
