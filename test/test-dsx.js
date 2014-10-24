@@ -2,7 +2,7 @@
 var fs = require("fs");
 var assert = require("assert");
 var Serializer = require("../damn-simple-xml");
-
+var EOL = require('os').EOL;
 
 describe("DamnSimpleXml.deserialize()", function() {
 
@@ -35,6 +35,7 @@ describe("DamnSimpleXml.deserialize()", function() {
             numeric: 10
         }
 
+        var dsx = new Serializer(); 
    
         it("'.number' should be a number equal to 10", function(done) {
             fs.readFile("test/attr-types.xml", { encoding: "utf8" }, 
@@ -194,6 +195,8 @@ describe("DamnSimpleXml.deserialize()", function() {
             }
         };
         
+        var dsx = new Serializer(); 
+
         it("should correspond to the expected object", function(done) {
             var data = fs.readFileSync("test/mixed-attribute-text.xml", {
                 encoding: "utf8"
@@ -211,16 +214,18 @@ describe("DamnSimpleXml.deserialize()", function() {
 
         var expected = { 
             nodeTextNode: { 
-                node1: 'node 1 value',
-                _text: '\n        text\n        ',
-                node2: 'node 2 value' 
+                node1: "node 1 value",
+                _text: EOL + "        text" + EOL + "        ",
+                node2: "node 2 value"
             },
             textNodeText: { 
-                _text: '\n        text1\n        \n        text2\n    ',
-                node: 'node value' 
+                _text: EOL + "        text1" + EOL + "        " + EOL + 
+                       "        text2" + EOL + "    ",
+                node: "node value" 
              } 
         };
 
+        var dsx = new Serializer(); 
 
         it("should contains nodeTextNode and textNodeText elements", 
         function(done) {
