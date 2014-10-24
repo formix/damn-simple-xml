@@ -9,8 +9,7 @@ module.exports = function(options) {
 }
 
 
-
-
+// *************************** Public methods *************************** \\
 
 function deserialize(xml, callback) {
 
@@ -115,6 +114,12 @@ function deserialize(xml, callback) {
     
 }
 
+
+
+
+
+
+// *************************** Private methods *************************** \\
 
 function convert(value) {
     var res = value;
