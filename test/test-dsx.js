@@ -1,7 +1,7 @@
 
 var fs = require("fs");
 var assert = require("assert");
-var dsx = require ("../damn-simple-xml");
+var Serializer = require("../damn-simple-xml");
 
 
 describe("DamnSimpleXml.deserialize()", function() {
@@ -12,10 +12,13 @@ describe("DamnSimpleXml.deserialize()", function() {
             firstName   : "Jean-Philippe",
             lastName    : "Gravel",
             email       : "jeanphilippe.gravel@gmail.com"
-        }; 
+        };
+        
+        var dsx = new Serializer(); 
 
         it("should be equal to the expected object", function(done) {
-            fs.readFile("test/simple.xml", {encoding: "utf8"}, function(err, data) {
+            fs.readFile("test/simple.xml", {encoding: "utf8"}, 
+            function(err, data) {
                 if (err) return done(err);
                 dsx.deserialize(data, function(pair) {
                     assert.deepEqual(pair.data, expected);
@@ -33,9 +36,12 @@ describe("DamnSimpleXml.deserialize()", function() {
         }
 
    
+        var dsx = new Serializer(); 
+
         describe(".number", function() {
             it("should be a number equal to 10", function(done) {
-                fs.readFile("test/attr-types.xml", { encoding: "utf8" }, function(err, data) {
+                fs.readFile("test/attr-types.xml", { encoding: "utf8" }, 
+                function(err, data) {
                     if (err) done(err);
                     dsx.deserialize(data, function(pair) {
                         assert.strictEqual(pair.data.numeric, 10);
@@ -45,9 +51,11 @@ describe("DamnSimpleXml.deserialize()", function() {
             });
         });
 
+
         describe(".boolTrue", function() {
             it("should be a boolean equal to true", function(done) {
-                fs.readFile("test/attr-types.xml", { encoding: "utf8" }, function(err, data) {
+                fs.readFile("test/attr-types.xml", { encoding: "utf8" }, 
+                function(err, data) {
                     if (err) done(err);
                     dsx.deserialize(data, function(pair) {
                         assert.strictEqual(pair.data.boolTrue, true);
@@ -60,7 +68,8 @@ describe("DamnSimpleXml.deserialize()", function() {
 
         describe(".boolFalse", function() {
             it("should be a boolean equal to false", function(done) {
-                fs.readFile("test/attr-types.xml", { encoding: "utf8" }, function(err, data) {
+                fs.readFile("test/attr-types.xml", { encoding: "utf8" }, 
+                function(err, data) {
                     if (err) done(err);
                     dsx.deserialize(data, function(pair) {
                         assert.strictEqual(pair.data.boolFalse, false);
@@ -72,7 +81,8 @@ describe("DamnSimpleXml.deserialize()", function() {
 
 
         describe(".date", function() {
-            it("should be a date equal to 2014-08-31T13:00:00.000Z", function(done) {
+            it("should be a date equal to 2014-08-31T13:00:00.000Z", 
+            function(done) {
                 fs.readFile("test/attr-types.xml", { 
                     encoding: "utf8" 
                 }, function(err, data) {
@@ -93,9 +103,11 @@ describe("DamnSimpleXml.deserialize()", function() {
     
 
     describe("typed-nodes.xml", function() {
+
         var data = fs.readFileSync("test/typed-nodes.xml", { 
             encoding: "utf8" 
         });
+
         var expected = {
             string: "This is a string",
             number: 125.3,
@@ -105,6 +117,9 @@ describe("DamnSimpleXml.deserialize()", function() {
             date3: new Date("2014-08-31T22:38:45"),
             date4: new Date("2014-08-31T22:38:45.123Z")
         }
+
+        var dsx = new Serializer(); 
+
         it("should correspond to expected types", function(done) {
             dsx.deserialize(data, function(pair) {
                 assert.deepEqual(pair.data, expected);
@@ -119,6 +134,8 @@ describe("DamnSimpleXml.deserialize()", function() {
             encoding: "utf8"
         });
         
+        var dsx = new Serializer(); 
+
         it("should be an array containing two items", function(done) {
             dsx.deserialize(data, function(pair) {
                 assert.equal(pair.data.length, 2);
@@ -136,10 +153,8 @@ describe("DamnSimpleXml.deserialize()", function() {
 
         it("should contains an employee with only one language as an " +
                 "array", function(done) {
-            dsx.deserialize({
-                xml: data,
-                arrayNames: ["languages"]
-            }, function(pair) {
+            var dsx = new Serializer({arrays: ["languages"]}); 
+            dsx.deserialize(data, function(pair) {
                 assert.ok(pair.data[0].languages.length == 1);
                 done();
             });
@@ -161,6 +176,8 @@ describe("DamnSimpleXml.deserialize()", function() {
         var data = fs.readFileSync("test/cdata.xml", {
             encoding: "utf8"
         });
+
+        var dsx = new Serializer(); 
 
         it("should contain a string with invalid xml " +
                 "characters", function(done) {

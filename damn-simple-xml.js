@@ -1,12 +1,23 @@
 
 Array.prototype.isArray = true;
 
-exports.deserialize = function(options, callback) {
 
-    var arrayNameSet = {};
-    if (typeof(options) === "object") {
-        arrayNameSet = createSet(options.arrayNames);
-    } 
+
+module.exports = function(options) {
+    this.options = options;
+    if (options === undefined) {
+        this._arrays = {};
+    } else {
+        this._arrays = createSet(options.arrays);
+    }
+    this.deserialize = deserialize;
+}
+
+
+
+
+
+function deserialize(xml, callback) {
 
     var sax = require("sax");
     var parser = sax.parser(true); // strict parser.
@@ -15,14 +26,15 @@ exports.deserialize = function(options, callback) {
         return this[this.length - 1];
     }
 
+    var arrays = this._arrays;
+
 
     parser.onerror = function(err) {
         throw err;
     }
 
-
     parser.onopentag = function(node) {
-        var obj = createObject(node.name, arrayNameSet);
+        var obj = createObject(node.name, arrays);
         for (var key in node.attributes) {
             obj[key] = convert(node.attributes[key]);
         }
@@ -82,11 +94,7 @@ exports.deserialize = function(options, callback) {
     }
 
     
-    var xmlstring = options;
-    if (typeof(xmlstring) === "object") {
-        xmlstring = options.xml;
-    }
-    parser.write(xmlstring).close();
+    parser.write(xml).close();
     
 }
 
