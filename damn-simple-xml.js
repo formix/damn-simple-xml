@@ -15,13 +15,7 @@ function deserialize(xml, callback) {
 
     var sax = require("sax");
     var parser = sax.parser(true); // strict parser.
-    var stack  = [];
-    stack.peek = function() {
-        if (this.length === 0) {
-            throw new Error('Cannot peek an empty stack!');
-        }
-        return this[this.length - 1];
-    }
+    var stack = createStack();
 
     var arrays = {};
     if (this.options && this.options.arrays) {
@@ -116,7 +110,26 @@ function deserialize(xml, callback) {
 
 
 
+function serialize(pair, callback) {
+   _seialize(pair.root, pair, callback); 
+}
 
+
+function _serialze(nameStack, pair, callBack) {
+    if (isEmpty(pair.data)) { 
+        callback("<" + pair.root + " />");
+    } else {
+        callback("<" + pair.root + ">");
+    }
+    
+    for(var root in pair.data) {
+        var childPair = {
+            root: root,
+            data: pair.data[root]
+        }
+
+    }
+}
 
 
 // *************************** Private methods *************************** \\
@@ -167,4 +180,15 @@ function isEmpty(obj) {
         return false;
     }
     return true;
+}
+
+function createStack() {
+    var stack  = [];
+    stack.peek = function() {
+        if (this.length === 0) {
+            throw new Error('Cannot peek an empty stack!');
+        }
+        return this[this.length - 1];
+    }
+    return stack;
 }
