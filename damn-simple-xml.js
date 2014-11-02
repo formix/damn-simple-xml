@@ -4,8 +4,10 @@ Array.prototype.isArray = true;
 
 
 module.exports = function(options) {
-    this.options = options;
+    this.options     = options;
     this.deserialize = deserialize;
+    this.serialize   = serialize;
+    this._serialize  = _serialize;
 }
 
 
@@ -24,7 +26,8 @@ function deserialize(xml, callback) {
 
 
     parser.onerror = function(err) {
-        throw err;
+        throw callback(err);
+        return;
     }
 
     parser.onopentag = function(node) {
@@ -66,7 +69,7 @@ function deserialize(xml, callback) {
                 stack.peek().data[pair.root] = convert(pair.data);
             }
         } else {
-            callback(pair); // parsing ends here!
+            callback(null, pair); // parsing ends here!
         }
     }
 
@@ -111,24 +114,122 @@ function deserialize(xml, callback) {
 
 
 function serialize(pair, callback) {
-   _seialize(pair.root, pair, callback); 
+    try {
+        var xml = this._seialize(pair.root, pair, callback); 
+        callback(null, xml);
+    } catch (err) {
+        callback(err);
+    }
 }
 
 
-function _serialze(nameStack, pair, callBack) {
-    if (isEmpty(pair.data)) { 
-        callback("<" + pair.root + " />");
-    } else {
-        callback("<" + pair.root + ">");
+function _serialize(nameStack, pair) {
+
+    if (!pair) {
+        throw new Error("The pair parameter is not set at " + nameStack);
     }
-    
-    for(var root in pair.data) {
-        var childPair = {
-            root: root,
-            data: pair.data[root]
+
+    if (!pair.root) {
+        throw new Error("The pair.root value must be set to a non-empty " +
+               "string at " + nameStack);
+    }
+
+    if (pair.indexOf(" ") > -1) {
+        throw new Error("No space allowed in pair.root value at " + nameStack);
+    }
+
+    var pairDataType = typeof(pair.data);
+    if (!pair.data && (pairDataType != "number") && (pairDataType != "boolean")) {
+        // data is null, undefined or an empty string.
+        return "<" + pair.root + " />";
+    }
+
+    var xml = "<" + pair.root; // Create the current element
+
+    // Add attributes if any
+    var attrset = {};
+    if (this.options && this.options.attributes) {
+        if (!this.options.attributes.isArray) {
+            throw new Error("The options.attributes field must be an array.");
         }
 
+        var attributes = this.options.attributes[nameStack];
+        for (var i = 0; i < attributes.length; i++) {
+            var name = attributes[i];
+            var value = root.data[name];
+            attrset[name] = true;
+
+            // Add an attribute only if the field is present and defined.
+            if (value !== undefined) {
+                if (name.indexOf(" ") > -1) {
+                    throw new Error("An attributei's name cannot contain spaces at " +
+                            nameStack + " attribute: " + name);
+                }
+                xml += " " + name;
+                if (value != null) {
+                    if (typeof(value) !== "string") {
+                        throw new Error("An attribute's value must be a string at " +
+                                nameStack + " attribute: " + name);
+                    }
+                    // Add the value only if non-null
+                    xml += "=" + value;
+                }
+            }
+        }
     }
+
+    // create subxml data from sub elements.
+    var subxml = "";
+    if (typeof(pair.data) === "string") {
+        // When data is a string, set it directly to the subxml.
+        subxml = pair.data;
+    } else if (pair.data.isArray) {
+        // When data is an array, add all array item to the subxml.
+        var itemName = pair.root + "Item";
+        if (this.options && this.options.arrays && this.options.arrays[nameStack]) {
+            itemName = this.options.arrays[nameStack];
+        }
+        for (var i = 0; i < pair.data.length; i++) {
+            var item = pair.data[i];
+            try {
+                subxml += this._serialize(nameStack + "." + itemName, {
+                    root: itemName,
+                    data: item
+                });
+            } catch (err) {
+                var suberr = new Error("An error occured while serializing " +
+                        "an array at index [" + i + "] at " + nameStack + 
+                        ". See 'Error.innerError' for more details.");
+                suberr.innerError = err;
+                throw suberr;
+            }
+        }
+    } else {
+        // Otherwise, data is an object and we add-up the serialization 
+        // result of all it child nodes.
+        for (var elem in pair.data) {
+            // skip attribues
+            if (!attrset[elem]) {
+                // Serialize the non-attribute element.
+                subxml += this._serialize(nameStack + "." + elem, {
+                    root: elem,
+                    data: pair.data[elem]
+                });
+            }
+        }
+    }
+
+
+    if (subxml === "") {
+        // No child nodes, close the opening tag as an empty tag.
+        xml += " />";
+    } else {
+        // There is some child elements, close the opening element, add
+        // the subxml and add the closing tag.
+        xml += ">" + subxml + "</" + pair.root + ">";
+    }
+
+    return xml;
 }
 
 
