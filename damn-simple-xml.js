@@ -115,7 +115,7 @@ function deserialize(xml, callback) {
 
 function serialize(pair, callback) {
     try {
-        var xml = this._seialize(pair.root, pair, callback); 
+        var xml = this._serialize(pair.root, pair, callback); 
         callback(null, xml);
     } catch (err) {
         callback(err);
@@ -134,12 +134,11 @@ function _serialize(nameStack, pair) {
                "string at " + nameStack);
     }
 
-    if (pair.indexOf(" ") > -1) {
+    if (pair.root.indexOf(" ") > -1) {
         throw new Error("No space allowed in pair.root value at " + nameStack);
     }
 
-    var pairDataType = typeof(pair.data);
-    if (!pair.data && (pairDataType != "number") && (pairDataType != "boolean")) {
+    if ((pair.data === null) || (pair.data === undefined)) {
         // data is null, undefined or an empty string.
         return "<" + pair.root + " />";
     }
@@ -149,16 +148,11 @@ function _serialize(nameStack, pair) {
     // Add attributes if any
     var attrset = {};
     if (this.options && this.options.attributes) {
-        if (!this.options.attributes.isArray) {
-            throw new Error("The options.attributes field must be an array.");
-        }
-
         var attributes = this.options.attributes[nameStack];
         for (var i = 0; i < attributes.length; i++) {
             var name = attributes[i];
             var value = root.data[name];
             attrset[name] = true;
-
             // Add an attribute only if the field is present and defined.
             if (value !== undefined) {
                 if (name.indexOf(" ") > -1) {
@@ -178,11 +172,12 @@ function _serialize(nameStack, pair) {
         }
     }
 
+    var datatype = typeof(pair.data);
     // create subxml data from sub elements.
-    var subxml = "";
-    if (typeof(pair.data) === "string") {
-        // When data is a string, set it directly to the subxml.
-        subxml = pair.data;
+    var subxml = null;
+    if ((datatype === "string") || (datatype === "boolean") || 
+            (datatype === "number")) {
+        subxml = pair.data.toString();
     } else if (pair.data.isArray) {
         // When data is an array, add all array item to the subxml.
         var itemName = pair.root + "Item";
@@ -190,6 +185,9 @@ function _serialize(nameStack, pair) {
             itemName = this.options.arrays[nameStack];
         }
         for (var i = 0; i < pair.data.length; i++) {
+            if (subxml === null) {
+                subxml = "";
+            }
             var item = pair.data[i];
             try {
                 subxml += this._serialize(nameStack + "." + itemName, {
@@ -210,6 +208,9 @@ function _serialize(nameStack, pair) {
         for (var elem in pair.data) {
             // skip attribues
             if (!attrset[elem]) {
+                if (subxml === null) {
+                    subxml = "";
+                }
                 // Serialize the non-attribute element.
                 subxml += this._serialize(nameStack + "." + elem, {
                     root: elem,
@@ -220,7 +221,7 @@ function _serialize(nameStack, pair) {
     }
 
 
-    if (subxml === "") {
+    if (subxml === null) {
         // No child nodes, close the opening tag as an empty tag.
         xml += " />";
     } else {
