@@ -93,6 +93,23 @@ describe("DamnSimpleXml.serialize()", function() {
     });
 
 
+    describe("An object containing a '_text' field", function() {
+        it("should be <email>nobody@nowhere.com</email>", 
+        function(done) {
+            dsx.serialize({
+                root: "email",
+                data: {
+                    _text: "nobody@nowhere.com"
+                }
+            }, function(err, xml) {
+                if (err) throw err;
+                assert.equal(xml, "<email>nobody@nowhere.com</email>");
+                done();
+            });
+        });
+    });
+
+
     describe("Defining an array in options", function() {
         
         it("should be an array of department in the departments node", 

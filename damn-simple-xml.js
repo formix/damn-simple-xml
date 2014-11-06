@@ -157,7 +157,7 @@ function _serialize(nameStack, pair) {
                 // Add an attribute only if the field is present and defined.
                 if (value !== undefined) {
                     if (name.indexOf(" ") > -1) {
-                        throw new Error("An attributei's name cannot " +
+                        throw new Error("An attribute's name cannot " +
                                 "contain spaces at " + nameStack + 
                                 " attribute: " + name);
                     }
@@ -169,7 +169,7 @@ function _serialize(nameStack, pair) {
                                     " attribute: " + name);
                         }
                         // Add the value only if non-null
-                        xml += "=" + value;
+                        xml += "=\"" + value + "\"";
                     }
                 }
             }
@@ -217,11 +217,21 @@ function _serialize(nameStack, pair) {
                 if (subxml === null) {
                     subxml = "";
                 }
-                // Serialize the non-attribute element.
-                subxml += this._serialize(nameStack + "." + elem, {
-                    root: elem,
-                    data: pair.data[elem]
-                });
+                if (elem === "_text") {
+                    if (isNative(pair.data[elem])) {
+                        subxml += pair.data[elem];
+                    } else if (pair.data[elem] instanceof Date) {
+                        subxml += pair.data[elem].toISOString();
+                    } else {
+                        subxml += JSON.stringify(pair.data[elem]);
+                    }
+                } else {
+                    // Serialize the non-attribute element.
+                    subxml += this._serialize(nameStack + "." + elem, {
+                        root: elem,
+                        data: pair.data[elem]
+                    });
+                }
             }
         }
     }
@@ -241,6 +251,16 @@ function _serialize(nameStack, pair) {
 
 
 // *************************** Private methods *************************** \\
+
+
+function isNative(value) {
+    var datatype = typeof(value);
+    if ((datatype === "string") || (datatype === "boolean") || 
+            (datatype === "number")) {
+        return true;
+    }
+    return false;
+}
 
 function convert(value) {
     var res = value;
