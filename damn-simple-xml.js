@@ -178,6 +178,8 @@ function _serialize(nameStack, pair) {
     if ((datatype === "string") || (datatype === "boolean") || 
             (datatype === "number")) {
         subxml = pair.data.toString();
+    } else if (pair.data instanceof Date) {
+        subxml = pair.data.toISOString();
     } else if (pair.data.isArray) {
         // When data is an array, add all array item to the subxml.
         var itemName = pair.root + "Item";

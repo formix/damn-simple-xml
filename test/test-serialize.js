@@ -65,7 +65,7 @@ describe("DamnSimpleXml.serialize()", function() {
 
     });
 
-    describe("Just a string as data", function() {
+    describe("Simple data at the root node", function() {
         
         it("sould be '<hello>World!</hello>'", function(done) {
             dsx.serialize({
@@ -78,6 +78,97 @@ describe("DamnSimpleXml.serialize()", function() {
             });
         });
 
+
+        it("should be <date>2011-11-11T11:11:11.111Z</date>", function(done) {
+            dsx.serialize({
+                root: "date",
+                data: new Date("2011-11-11T11:11:11.111Z")
+            }, function (err, xml) {
+                if (err) throw err;
+                assert.equal(xml, "<date>2011-11-11T11:11:11.111Z</date>");
+                done();
+            });
+        });
+
     });
+
+
+    describe("Defining an array in the options", function() {
+        
+        it("should be an array of department in the departments node", 
+        function(done) {
+            
+            var dsx2 = new Serializer({
+                arrays: {
+                    "departments": "department"
+                }
+            });
+
+            dsx2.serialize({
+                root: "departments",
+                data: [
+                    {
+                        name: "Sales"
+                    },
+                    {
+                        name: "Shipping"
+                    }
+                ]
+            }, function(err, xml) {
+                if (err) throw err;
+                assert.equal(xml, 
+                    "<departments>" +
+                    "<department><name>Sales</name></department>" +
+                    "<department><name>Shipping</name></department>" +
+                    "</departments>");
+                done();
+            });
+
+        });
+
+
+        it("should be an array of department in the departments node under the root node", 
+        function(done) {
+            
+            var dsx2 = new Serializer({
+                arrays: {
+                    "organisation.departments": "department"
+                }
+            });
+
+            dsx2.serialize({
+                root: "organisation",
+                data: {
+                    title: "OrgCorp",
+                    departments: [
+                        {
+                            name: "Sales"
+                        },
+                        {
+                            name: "Shipping"
+                        }
+                    ]
+                }
+            }, function(err, xml) {
+                if (err) throw err;
+                assert.equal(xml, 
+                    "<organisation>" +
+                        "<title>OrgCorp</title>" +
+                        "<departments>" +
+                          "<department><name>Sales</name></department>" +
+                          "<department><name>Shipping</name></department>" +
+                        "</departments>" +
+                    "</organisation>");
+                done();
+            });
+
+        });
+
+
+
+
+    });
+
+
 
 });
