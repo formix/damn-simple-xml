@@ -149,24 +149,28 @@ function _serialize(nameStack, pair) {
     var attrset = {};
     if (this.options && this.options.attributes) {
         var attributes = this.options.attributes[nameStack];
-        for (var i = 0; i < attributes.length; i++) {
-            var name = attributes[i];
-            var value = root.data[name];
-            attrset[name] = true;
-            // Add an attribute only if the field is present and defined.
-            if (value !== undefined) {
-                if (name.indexOf(" ") > -1) {
-                    throw new Error("An attributei's name cannot contain spaces at " +
-                            nameStack + " attribute: " + name);
-                }
-                xml += " " + name;
-                if (value != null) {
-                    if (typeof(value) !== "string") {
-                        throw new Error("An attribute's value must be a string at " +
-                                nameStack + " attribute: " + name);
+        if (attributes !== undefined) {
+            for (var i = 0; i < attributes.length; i++) {
+                var name = attributes[i];
+                var value = pair.data[name];
+                attrset[name] = true;
+                // Add an attribute only if the field is present and defined.
+                if (value !== undefined) {
+                    if (name.indexOf(" ") > -1) {
+                        throw new Error("An attributei's name cannot " +
+                                "contain spaces at " + nameStack + 
+                                " attribute: " + name);
                     }
-                    // Add the value only if non-null
-                    xml += "=" + value;
+                    xml += " " + name;
+                    if (value != null) {
+                        if (typeof(value) !== "string") {
+                            throw new Error("An attribute's value must " +
+                                    "be a string at " + nameStack + 
+                                    " attribute: " + name);
+                        }
+                        // Add the value only if non-null
+                        xml += "=" + value;
+                    }
                 }
             }
         }

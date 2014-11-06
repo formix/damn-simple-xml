@@ -93,7 +93,7 @@ describe("DamnSimpleXml.serialize()", function() {
     });
 
 
-    describe("Defining an array in the options", function() {
+    describe("Defining an array in options", function() {
         
         it("should be an array of department in the departments node", 
         function(done) {
@@ -127,7 +127,7 @@ describe("DamnSimpleXml.serialize()", function() {
         });
 
 
-        it("should be an array of department in the departments node under the root node", 
+        it("should be an array of dep, in the deps node under the org node", 
         function(done) {
             
             var dsx2 = new Serializer({
@@ -164,8 +164,30 @@ describe("DamnSimpleXml.serialize()", function() {
 
         });
 
+    });
 
 
+    describe("Defining attributes in options", function() {
+
+        var dsx2 = new Serializer({
+            attributes: {
+                "email" : ["type"]
+            }
+        });
+
+        it("should be a root containing one attributes", function(done) {
+            dsx2.serialize({
+                root: "email",
+                data: {
+                    type: "personnal",
+                    _text: "nobody@nowhere.com"
+                }
+            }, function(err, xml) {
+                if (err) throw err;
+                assert.equal(xml, '<email type="personnal">nobody@nowhere.com</email>');
+                done();
+            });
+        });
 
     });
 
