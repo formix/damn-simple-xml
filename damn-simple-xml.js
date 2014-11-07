@@ -4,7 +4,7 @@ Array.prototype.isArray = true;
 
 
 module.exports = function(options) {
-    this.options     = options;
+    this.options     = createOptions(options);
     this.deserialize = deserialize;
     this.serialize   = serialize;
     this._serialize  = _serialize;
@@ -19,11 +19,7 @@ function deserialize(xml, callback) {
     var parser = sax.parser(true); // strict parser.
     var stack = createStack();
 
-    var arrays = {};
-    if (this.options && this.options.arrays) {
-        arrays = this.options.arrays;
-    }
-
+    var arrays = this.options.arrays;
 
     parser.onerror = function(err) {
         throw callback(err);
@@ -147,30 +143,33 @@ function _serialize(nameStack, pair) {
 
     // Add attributes if any
     var attrset = {};
-    if (this.options && this.options.attributes) {
-        var attributes = this.options.attributes[nameStack];
-        if (attributes !== undefined) {
-            for (var i = 0; i < attributes.length; i++) {
-                var name = attributes[i];
-                var value = pair.data[name];
-                attrset[name] = true;
-                // Add an attribute only if the field is present and defined.
-                if (value !== undefined) {
-                    if (name.indexOf(" ") > -1) {
-                        throw new Error("An attribute's name cannot " +
-                                "contain spaces at " + nameStack + 
+    var attributes = this.options.attributes[nameStack];
+    if (attributes !== undefined) {
+        for (var i = 0; i < attributes.length; i++) {
+            var name = attributes[i];
+            var value = pair.data[name];
+            attrset[name] = true;
+            // Add an attribute only if the field is present and defined.
+            if (value !== undefined) {
+                if (name.indexOf(" ") > -1) {
+                    throw new Error("An attribute's name cannot " +
+                            "contain spaces at " + nameStack + 
+                            " attribute: " + name);
+                }
+                xml += " " + name;
+                if (value != null) {
+                    var attrValue = "";
+                    if (value instanceof Date) {
+                        attrValue = value.toISOString();
+                    } else if (isNative(value)) {
+                        attrValue = value.toString();
+                    } else {
+                        throw new Error("An attribute's value cannot " +
+                                "be an object at " + nameStack + 
                                 " attribute: " + name);
                     }
-                    xml += " " + name;
-                    if (value != null) {
-                        if (typeof(value) !== "string") {
-                            throw new Error("An attribute's value must " +
-                                    "be a string at " + nameStack + 
-                                    " attribute: " + name);
-                        }
-                        // Add the value only if non-null
-                        xml += "=\"" + value + "\"";
-                    }
+                    // Add the value only if non-null
+                    xml += "=\"" + attrValue + "\"";
                 }
             }
         }
@@ -187,7 +186,7 @@ function _serialize(nameStack, pair) {
     } else if (pair.data.isArray) {
         // When data is an array, add all array item to the subxml.
         var itemName = pair.root + "Item";
-        if (this.options && this.options.arrays && this.options.arrays[nameStack]) {
+        if (this.options.arrays[nameStack]) {
             itemName = this.options.arrays[nameStack];
         }
         for (var i = 0; i < pair.data.length; i++) {
@@ -319,4 +318,17 @@ function createStack() {
         return this[this.length - 1];
     }
     return stack;
+}
+
+function createOptions(options) {
+    var opt = {
+        arrays : {},
+        attributes: {}
+    };
+    if (options !== undefined) {
+        for (var key in options) {
+            opt[key] = options[key];
+        }
+    }
+    return opt;
 }

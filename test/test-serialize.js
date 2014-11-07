@@ -186,13 +186,13 @@ describe("DamnSimpleXml.serialize()", function() {
 
     describe("Defining attributes in options", function() {
 
-        var dsx2 = new Serializer({
-            attributes: {
-                "email" : ["type"]
-            }
-        });
-
         it("should be a root containing one attributes", function(done) {
+            var dsx2 = new Serializer({
+                attributes: {
+                    "email" : ["type"]
+                }
+            });
+
             dsx2.serialize({
                 root: "email",
                 data: {
@@ -202,6 +202,38 @@ describe("DamnSimpleXml.serialize()", function() {
             }, function(err, xml) {
                 if (err) throw err;
                 assert.equal(xml, '<email type="personnal">nobody@nowhere.com</email>');
+                done();
+            });
+        });
+
+
+        it("should allow many attribute definitions in child node", function(done) {
+            var dsx2 = new Serializer({
+                attributes: {
+                    "department.supervisor" : ["number", "birthDate"]
+                }
+            });
+            
+            dsx2.serialize({
+                root: "department",
+                data: {
+                    name: "Sales and Marketting",
+                    supervisor: {
+                        number: "122",
+                        birthDate: new Date("1972-02-16"),
+                        firstName: "John",
+                        lastName: "Doe"
+                    }
+                }
+            }, function(err, xml) {
+                assert.equal(xml, "<department>" +
+                                    "<name>Sales and Marketting</name>" +
+                                    "<supervisor number=\"122\" " +
+                                            "birthDate=\"1972-02-16T00:00:00.000Z\">" +
+                                        "<firstName>John</firstName>" +
+                                        "<lastName>Doe</lastName>" +
+                                    "</supervisor>" +
+                                  "</department>");
                 done();
             });
         });
