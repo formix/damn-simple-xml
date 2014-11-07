@@ -238,6 +238,43 @@ describe("DamnSimpleXml.serialize()", function() {
             });
         });
 
+
+        it("should be working even within an array", function(done) {
+            var dsx2 = new Serializer({
+                attributes: {
+                    "department.employees.employee" : ["number"]
+                },
+                arrays: {
+                    "department.employees": "employee"
+                }
+            });
+            
+            dsx2.serialize({
+                root: "department",
+                data: {
+                    name: "Sales and Marketting",
+                    employees: [
+                        {
+                            number: 122,
+                            firstName: "John",
+                            lastName: "Doe"
+                        }
+                    ]
+                }
+            }, function(err, xml) {
+                assert.equal(xml, "<department>" +
+                                    "<name>Sales and Marketting</name>" +
+                                    "<employees>" +
+                                        "<employee number=\"122\">" +
+                                            "<firstName>John</firstName>" +
+                                            "<lastName>Doe</lastName>" +
+                                        "</employee>" +
+                                    "</employees>" +
+                                  "</department>");
+                done();
+            });
+        });
+
     });
 
 
