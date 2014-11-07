@@ -32,10 +32,14 @@ function deserialize(xml, callback) {
             obj[key] = convert(node.attributes[key]);
         }
 
+        // Check if the current node content found a node after having 
+        // found some text in the current node.
         if ((stack.length > 0) && (typeof(stack.peek().data) === "string")) {
+            // We have a "text" sibling to a <node>, we must change the 
+            // data to an object with a _text element before going on.
             var text = stack.peek().data;
             stack.peek().data = {
-                _text: text
+                _text: text.trim()
             };
         } 
 
@@ -81,10 +85,13 @@ function deserialize(xml, callback) {
                 if (stack.peek().data._text === undefined) {
                     stack.peek().data._text = "";
                 }
-                stack.peek().data._text += text;
+                if (stack.peek().data._text.length > 0) {
+                    stack.peek().data._text += " ";
+                }
+                stack.peek().data._text += text.trim();
             }
         } else if (typeof(stack.peek().data) === "string") {
-            stack.peek().data += text;
+            stack.peek().data += text.trim();
         }
     }
 
@@ -222,7 +229,8 @@ function _serialize(nameStack, pair) {
                     } else if (pair.data[elem] instanceof Date) {
                         subxml += pair.data[elem].toISOString();
                     } else {
-                        subxml += JSON.stringify(pair.data[elem]);
+                        throw new Error("A _text field cannot contain an " +
+                                "object or array.");
                     }
                 } else {
                     // Serialize the non-attribute element.

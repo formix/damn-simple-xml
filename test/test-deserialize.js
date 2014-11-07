@@ -280,12 +280,11 @@ describe("DamnSimpleXml.deserialize()", function() {
         var expected = { 
             nodeTextNode: { 
                 node1: "node 1 value",
-                _text: EOL + "        text" + EOL + "        ",
+                _text: "text",
                 node2: "node 2 value"
             },
             textNodeText: { 
-                _text: EOL + "        text1" + EOL + "        " + EOL + 
-                       "        text2" + EOL + "    ",
+                _text: "text1 text2",
                 node: "node value" 
              } 
         };
