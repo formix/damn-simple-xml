@@ -11,7 +11,7 @@ describe("DamnSimpleXml.serialize()", function() {
 
         it("should be '<undefined />'", function(done) {
             dsx.serialize({
-                root: "undefined"
+                name: "undefined"
             }, function(err, xml) {
                 if (err) throw err;
                 assert.equal(xml, "<undefined />");
@@ -21,7 +21,7 @@ describe("DamnSimpleXml.serialize()", function() {
 
         it("should be '<null />'", function(done) {
             dsx.serialize({
-                root: "null",
+                name: "null",
                 data: null
             }, function(err, xml) {
                 if (err) throw err;
@@ -32,7 +32,7 @@ describe("DamnSimpleXml.serialize()", function() {
 
         it("should be '<empty></empty>'", function(done) {
             dsx.serialize({
-                root: "empty",
+                name: "empty",
                 data: ""
             }, function(err, xml) {
                 if (err) throw err;
@@ -43,7 +43,7 @@ describe("DamnSimpleXml.serialize()", function() {
 
         it("should be '<boolean>false</boolean>'", function(done) {
             dsx.serialize({
-                root: "boolean",
+                name: "boolean",
                 data: false
             }, function(err, xml) {
                 if (err) throw err;
@@ -54,7 +54,7 @@ describe("DamnSimpleXml.serialize()", function() {
 
         it("should be '<number>0</number>'", function(done) {
             dsx.serialize({
-                root: "number",
+                name: "number",
                 data: 0
             }, function(err, xml) {
                 if (err) throw err;
@@ -69,7 +69,7 @@ describe("DamnSimpleXml.serialize()", function() {
         
         it("sould be '<hello>World!</hello>'", function(done) {
             dsx.serialize({
-                root: "hello", 
+                name: "hello", 
                 data: "World!"
             }, function(err, xml) {
                 if (err) throw err;
@@ -81,7 +81,7 @@ describe("DamnSimpleXml.serialize()", function() {
 
         it("should be <date>2011-11-11T11:11:11.111Z</date>", function(done) {
             dsx.serialize({
-                root: "date",
+                name: "date",
                 data: new Date("2011-11-11T11:11:11.111Z")
             }, function (err, xml) {
                 if (err) throw err;
@@ -97,7 +97,7 @@ describe("DamnSimpleXml.serialize()", function() {
         it("should be <email>nobody@nowhere.com</email>", 
         function(done) {
             dsx.serialize({
-                root: "email",
+                name: "email",
                 data: {
                     _text: "nobody@nowhere.com"
                 }
@@ -122,7 +122,7 @@ describe("DamnSimpleXml.serialize()", function() {
             });
 
             dsx2.serialize({
-                root: "departments",
+                name: "departments",
                 data: [
                     {
                         name: "Sales"
@@ -154,7 +154,7 @@ describe("DamnSimpleXml.serialize()", function() {
             });
 
             dsx2.serialize({
-                root: "organisation",
+                name: "organisation",
                 data: {
                     title: "OrgCorp",
                     departments: [
@@ -194,7 +194,7 @@ describe("DamnSimpleXml.serialize()", function() {
             });
 
             dsx2.serialize({
-                root: "email",
+                name: "email",
                 data: {
                     type: "personnal",
                     _text: "nobody@nowhere.com"
@@ -215,7 +215,7 @@ describe("DamnSimpleXml.serialize()", function() {
             });
             
             dsx2.serialize({
-                root: "department",
+                name: "department",
                 data: {
                     name: "Sales and Marketting",
                     supervisor: {
@@ -250,7 +250,7 @@ describe("DamnSimpleXml.serialize()", function() {
             });
             
             dsx2.serialize({
-                root: "department",
+                name: "department",
                 data: {
                     name: "Sales and Marketting",
                     employees: [
