@@ -44,7 +44,7 @@ function deserialize(xml, callback) {
         } 
 
         stack.push({
-            root: node.name,
+            name: node.name,
             data: obj
         });
         
@@ -52,24 +52,24 @@ function deserialize(xml, callback) {
 
 
     parser.onclosetag = function() {
-        var pair = stack.pop();
+        var root = stack.pop();
         if (stack.length > 0) {
             if (stack.peek().data.isArray) {
                 // Already an array, just push the data.
-                stack.peek().data.push(pair.data);
-            } else if (typeof(stack.peek().data[pair.root]) !== "undefined") {
+                stack.peek().data.push(root.data);
+            } else if (typeof(stack.peek().data[root.name]) !== "undefined") {
                 // This is the second time we encouter a node at the same
                 // root. It means that we are in an array.
-                var data = stack.peek().data[pair.root];
-                delete stack.peek().data[pair.root];
+                var data = stack.peek().data[root.name];
+                delete stack.peek().data[root.name];
                 stack.peek().data = [];
                 stack.peek().data.push(data);
-                stack.peek().data.push(pair.data);
+                stack.peek().data.push(root.data);
             } else {
-                stack.peek().data[pair.root] = convert(pair.data);
+                stack.peek().data[root.name] = convert(root.data);
             }
         } else {
-            callback(null, pair); // parsing ends here!
+            callback(null, root); // parsing ends here!
         }
     }
 
@@ -116,9 +116,9 @@ function deserialize(xml, callback) {
 
 
 
-function serialize(pair, callback) {
+function serialize(root, callback) {
     try {
-        var xml = this._serialize(pair.root, pair, callback); 
+        var xml = this._serialize(root.name, root, callback); 
         callback(null, xml);
     } catch (err) {
         callback(err);
@@ -126,27 +126,27 @@ function serialize(pair, callback) {
 }
 
 
-function _serialize(nameStack, pair) {
+function _serialize(nameStack, root) {
 
-    if (!pair) {
-        throw new Error("The pair parameter is not set at " + nameStack);
+    if (!root) {
+        throw new Error("The root parameter is not set at " + nameStack);
     }
 
-    if (!pair.root) {
-        throw new Error("The pair.root value must be set to a non-empty " +
+    if (!root.name) {
+        throw new Error("The root.name value must be set to a non-empty " +
                "string at " + nameStack);
     }
 
-    if (pair.root.indexOf(" ") > -1) {
-        throw new Error("No space allowed in pair.root value at " + nameStack);
+    if (root.name.indexOf(" ") > -1) {
+        throw new Error("No space allowed in root.name value at " + nameStack);
     }
 
-    if ((pair.data === null) || (pair.data === undefined)) {
+    if ((root.data === null) || (root.data === undefined)) {
         // data is null, undefined or an empty string.
-        return "<" + pair.root + " />";
+        return "<" + root.name + " />";
     }
 
-    var xml = "<" + pair.root; // Create the current element
+    var xml = "<" + root.name; // Create the current element
 
     // Add attributes if any
     var attrset = {};
@@ -154,7 +154,7 @@ function _serialize(nameStack, pair) {
     if (attributes !== undefined) {
         for (var i = 0; i < attributes.length; i++) {
             var name = attributes[i];
-            var value = pair.data[name];
+            var value = root.data[name];
             attrset[name] = true;
             // Add an attribute only if the field is present and defined.
             if (value !== undefined) {
@@ -182,28 +182,28 @@ function _serialize(nameStack, pair) {
         }
     }
 
-    var datatype = typeof(pair.data);
+    var datatype = typeof(root.data);
     // create subxml data from sub elements.
     var subxml = null;
     if ((datatype === "string") || (datatype === "boolean") || 
             (datatype === "number")) {
-        subxml = pair.data.toString();
-    } else if (pair.data instanceof Date) {
-        subxml = pair.data.toISOString();
-    } else if (pair.data.isArray) {
+        subxml = root.data.toString();
+    } else if (root.data instanceof Date) {
+        subxml = root.data.toISOString();
+    } else if (root.data.isArray) {
         // When data is an array, add all array item to the subxml.
-        var itemName = pair.root + "Item";
+        var itemName = root.name + "Item";
         if (this.behavior.arrays[nameStack]) {
             itemName = this.behavior.arrays[nameStack];
         }
-        for (var i = 0; i < pair.data.length; i++) {
+        for (var i = 0; i < root.data.length; i++) {
             if (subxml === null) {
                 subxml = "";
             }
-            var item = pair.data[i];
+            var item = root.data[i];
             try {
                 subxml += this._serialize(nameStack + "." + itemName, {
-                    root: itemName,
+                    name: itemName,
                     data: item
                 });
             } catch (err) {
@@ -217,17 +217,17 @@ function _serialize(nameStack, pair) {
     } else {
         // Otherwise, data is an object and we add-up the serialization 
         // result of all it child nodes.
-        for (var elem in pair.data) {
+        for (var elem in root.data) {
             // skip attribues
             if (!attrset[elem]) {
                 if (subxml === null) {
                     subxml = "";
                 }
                 if (elem === "_text") {
-                    if (isNative(pair.data[elem])) {
-                        subxml += pair.data[elem];
-                    } else if (pair.data[elem] instanceof Date) {
-                        subxml += pair.data[elem].toISOString();
+                    if (isNative(root.data[elem])) {
+                        subxml += root.data[elem];
+                    } else if (root.data[elem] instanceof Date) {
+                        subxml += root.data[elem].toISOString();
                     } else {
                         throw new Error("A _text field cannot contain an " +
                                 "object or array.");
@@ -235,8 +235,8 @@ function _serialize(nameStack, pair) {
                 } else {
                     // Serialize the non-attribute element.
                     subxml += this._serialize(nameStack + "." + elem, {
-                        root: elem,
-                        data: pair.data[elem]
+                        name: elem,
+                        data: root.data[elem]
                     });
                 }
             }
@@ -250,7 +250,7 @@ function _serialize(nameStack, pair) {
     } else {
         // There is some child elements, close the opening element, add
         // the subxml and add the closing tag.
-        xml += ">" + subxml + "</" + pair.root + ">";
+        xml += ">" + subxml + "</" + root.name + ">";
     }
 
     return xml;
@@ -301,7 +301,7 @@ function createObject(stack, nodeName, arrayNameSet) {
 function createNodeName(stack, nodeName) {
     var name = "";
     for (var i = 0; i < stack.length; i++) {
-        name += stack[i].root + ".";
+        name += stack[i].name + ".";
     }
     return name + nodeName;
 }

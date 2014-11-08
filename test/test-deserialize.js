@@ -20,13 +20,13 @@ describe("DamnSimpleXml.deserialize()", function() {
             fs.readFile("test/simple.xml", {encoding: "utf8"}, 
             function(err, data) {
                 if (err) return done(err);
-                dsx.deserialize(data, function(err, pair) {
+                dsx.deserialize(data, function(err, root) {
                     if (err) {
                         console.log(err);
                         done();
                         return;
                     }
-                    assert.deepEqual(pair.data, expected);
+                    assert.deepEqual(root.data, expected);
                     done();
                 });
             });
@@ -46,13 +46,13 @@ describe("DamnSimpleXml.deserialize()", function() {
             fs.readFile("test/attr-types.xml", { encoding: "utf8" }, 
             function(err, data) {
                 if (err) done(err);
-                dsx.deserialize(data, function(err, pair) {
+                dsx.deserialize(data, function(err, root) {
                     if (err) {
                         console.log(err);
                         done();
                         return;
                     }
-                    assert.strictEqual(pair.data.numeric, 10);
+                    assert.strictEqual(root.data.numeric, 10);
                     done();
                 });
             });
@@ -62,13 +62,13 @@ describe("DamnSimpleXml.deserialize()", function() {
             fs.readFile("test/attr-types.xml", { encoding: "utf8" }, 
             function(err, data) {
                 if (err) done(err);
-                dsx.deserialize(data, function(err, pair) {
+                dsx.deserialize(data, function(err, root) {
                     if (err) {
                         console.log(err);
                         done();
                         return;
                     }
-                    assert.strictEqual(pair.data.boolTrue, true);
+                    assert.strictEqual(root.data.boolTrue, true);
                     done();
                 });
             });
@@ -78,13 +78,13 @@ describe("DamnSimpleXml.deserialize()", function() {
             fs.readFile("test/attr-types.xml", { encoding: "utf8" }, 
             function(err, data) {
                 if (err) done(err);
-                dsx.deserialize(data, function(err, pair) {
+                dsx.deserialize(data, function(err, root) {
                     if (err) {
                         console.log(err);
                         done();
                         return;
                     }
-                    assert.strictEqual(pair.data.boolFalse, false);
+                    assert.strictEqual(root.data.boolFalse, false);
                     done();
                 });
             });
@@ -97,7 +97,7 @@ describe("DamnSimpleXml.deserialize()", function() {
                 encoding: "utf8" 
             }, function(err, data) {
                 if (err) done(err);
-                dsx.deserialize(data, function(err, pair) {
+                dsx.deserialize(data, function(err, root) {
                     if (err) {
                         console.log(err);
                         done();
@@ -105,7 +105,7 @@ describe("DamnSimpleXml.deserialize()", function() {
                     }
                     var expected = new Date("2014-08-31T13:00:00.000Z");
                     assert.strictEqual(
-                        pair.data.date.toISOString(), 
+                        root.data.date.toISOString(), 
                         expected.toISOString());
                     done();
                 });
@@ -135,13 +135,13 @@ describe("DamnSimpleXml.deserialize()", function() {
         var dsx = new Serializer(); 
 
         it("should correspond to expected types", function(done) {
-            dsx.deserialize(data, function(err, pair) {
+            dsx.deserialize(data, function(err, root) {
                 if (err) {
                     console.log(err);
                     done();
                     return;
                 }
-                assert.deepEqual(pair.data, expected);
+                assert.deepEqual(root.data, expected);
                 done();
             });
         }); 
@@ -156,26 +156,26 @@ describe("DamnSimpleXml.deserialize()", function() {
         var dsx = new Serializer(); 
 
         it("should be an array containing two items", function(done) {
-            dsx.deserialize(data, function(err, pair) {
+            dsx.deserialize(data, function(err, root) {
                 if (err) {
                     console.log(err);
                     done();
                     return;
                 }
-                assert.equal(pair.data.length, 2);
+                assert.equal(root.data.length, 2);
                 done();
             });
         });
 
         it("should contains an employee with only one language as an " +
                 "object.", function(done) {
-            dsx.deserialize(data, function(err, pair) {
+            dsx.deserialize(data, function(err, root) {
                 if (err) {
                     console.log(err);
                     done();
                     return;
                 }
-                assert.ok(pair.data[0].languages["language"]);
+                assert.ok(root.data[0].languages["language"]);
                 done();
             });
         });
@@ -188,26 +188,26 @@ describe("DamnSimpleXml.deserialize()", function() {
                     "employees.employee.languages": "language"
                 }
             });
-            dsx.deserialize(data, function(err, pair) {
+            dsx.deserialize(data, function(err, root) {
                 if (err) {
                     console.log(err);
                     done();
                     return;
                 }
-                assert.ok(pair.data[0].languages.length == 1);
+                assert.ok(root.data[0].languages.length == 1);
                 done();
             });
         });
 
         it("should contains an employee with many languages as an " +
                 "array.", function(done) {
-            dsx.deserialize(data, function(err, pair) {
+            dsx.deserialize(data, function(err, root) {
                 if (err) {
                     console.log(err);
                     done();
                     return;
                 }
-                assert.ok(pair.data[1].languages.length > 0);
+                assert.ok(root.data[1].languages.length > 0);
                 done();
             });
         });
@@ -225,13 +225,13 @@ describe("DamnSimpleXml.deserialize()", function() {
 
         it("should contain a string with invalid xml " +
                 "characters", function(done) {
-            dsx.deserialize(data, function(err, pair) {
+            dsx.deserialize(data, function(err, root) {
                 if (err) {
                     console.log(err);
                     done();
                     return;
                 }
-                assert.equal(pair.data, 
+                assert.equal(root.data, 
                         "This is an <unparsed /> cdata block.");
                 done();
             });
@@ -242,7 +242,7 @@ describe("DamnSimpleXml.deserialize()", function() {
 
     describe("mixed-attribute-text.xml", function() {
         var expected = {
-            root: "employee",
+            name: "employee",
             data: {
                 name: "John Doe",
                 emails: [{
@@ -261,13 +261,13 @@ describe("DamnSimpleXml.deserialize()", function() {
             var data = fs.readFileSync("test/mixed-attribute-text.xml", {
                 encoding: "utf8"
             });
-            dsx.deserialize(data, function(err, pair) {
+            dsx.deserialize(data, function(err, root) {
                 if (err) {
                     console.log(err);
                     done();
                     return;
                 }
-                assert.deepEqual(pair, expected);
+                assert.deepEqual(root, expected);
                 done();
             });
         });
@@ -297,13 +297,13 @@ describe("DamnSimpleXml.deserialize()", function() {
                 encoding: "utf8"
             });
 
-            dsx.deserialize(data, function(err, pair) {
+            dsx.deserialize(data, function(err, root) {
                 if (err) {
                     console.log(err);
                     done();
                     return;
                 }
-                assert.deepEqual(pair.data, expected);
+                assert.deepEqual(root.data, expected);
                 done();
                 
             });
