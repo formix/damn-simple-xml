@@ -3,8 +3,8 @@ Array.prototype.isArray = true;
 
 
 
-module.exports = function(options) {
-    this.options     = createOptions(options);
+module.exports = function(behavior) {
+    this.behavior    = createBehavior(behavior);
     this.deserialize = deserialize;
     this.serialize   = serialize;
     this._serialize  = _serialize;
@@ -19,7 +19,7 @@ function deserialize(xml, callback) {
     var parser = sax.parser(true); // strict parser.
     var stack = createStack();
 
-    var arrays = this.options.arrays;
+    var arrays = this.behavior.arrays;
 
     parser.onerror = function(err) {
         throw callback(err);
@@ -150,7 +150,7 @@ function _serialize(nameStack, pair) {
 
     // Add attributes if any
     var attrset = {};
-    var attributes = this.options.attributes[nameStack];
+    var attributes = this.behavior.attributes[nameStack];
     if (attributes !== undefined) {
         for (var i = 0; i < attributes.length; i++) {
             var name = attributes[i];
@@ -193,8 +193,8 @@ function _serialize(nameStack, pair) {
     } else if (pair.data.isArray) {
         // When data is an array, add all array item to the subxml.
         var itemName = pair.root + "Item";
-        if (this.options.arrays[nameStack]) {
-            itemName = this.options.arrays[nameStack];
+        if (this.behavior.arrays[nameStack]) {
+            itemName = this.behavior.arrays[nameStack];
         }
         for (var i = 0; i < pair.data.length; i++) {
             if (subxml === null) {
@@ -328,14 +328,14 @@ function createStack() {
     return stack;
 }
 
-function createOptions(options) {
+function createBehavior(behavior) {
     var opt = {
         arrays : {},
         attributes: {}
     };
-    if (options !== undefined) {
-        for (var key in options) {
-            opt[key] = options[key];
+    if (behavior !== undefined) {
+        for (var key in behavior) {
+            opt[key] = behavior[key];
         }
     }
     return opt;
