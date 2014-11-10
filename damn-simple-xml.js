@@ -123,11 +123,11 @@ function serialize(root, callback) {
         var xml = this._serialize(root.name, root, callback); 
         process.nextTick(function() {
            callback(null, xml);
-        }
+        });
     } catch (err) {
         process.nextTick(function() {
             callback(err);
-        }
+        });
     }
 }
 
