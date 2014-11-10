@@ -9,7 +9,7 @@
     "type": "git",
     "url": "http://github.com/formix/damn-simple-xml.git"
   },
-  "license": "Apache-2.0",
+  "license": "MIT",
   "main": "damn-simple-xml.js",
   "keywords": [
     "xml",

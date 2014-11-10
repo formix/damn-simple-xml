@@ -126,19 +126,19 @@ function serialize(root, callback) {
 }
 
 
-function _serialize(nameStack, root) {
+function _serialize(fieldPath, root) {
 
     if (!root) {
-        throw new Error("The root parameter is not set at " + nameStack);
+        throw new Error("The root parameter is not set at " + fieldPath);
     }
 
     if (!root.name) {
         throw new Error("The root.name value must be set to a non-empty " +
-               "string at " + nameStack);
+               "string at " + fieldPath);
     }
 
     if (root.name.indexOf(" ") > -1) {
-        throw new Error("No space allowed in root.name value at " + nameStack);
+        throw new Error("No space allowed in root.name value at " + fieldPath);
     }
 
     if ((root.data === null) || (root.data === undefined)) {
@@ -150,7 +150,7 @@ function _serialize(nameStack, root) {
 
     // Add attributes if any
     var attrset = {};
-    var attributes = this.behavior.attributes[nameStack];
+    var attributes = this.behavior.attributes[fieldPath];
     if (attributes !== undefined) {
         for (var i = 0; i < attributes.length; i++) {
             var name = attributes[i];
@@ -160,7 +160,7 @@ function _serialize(nameStack, root) {
             if (value !== undefined) {
                 if (name.indexOf(" ") > -1) {
                     throw new Error("An attribute's name cannot " +
-                            "contain spaces at " + nameStack + 
+                            "contain spaces at " + fieldPath + 
                             " attribute: " + name);
                 }
                 xml += " " + name;
@@ -172,7 +172,7 @@ function _serialize(nameStack, root) {
                         attrValue = value.toString();
                     } else {
                         throw new Error("An attribute's value cannot " +
-                                "be an object at " + nameStack + 
+                                "be an object at " + fieldPath + 
                                 " attribute: " + name);
                     }
                     // Add the value only if non-null
@@ -193,8 +193,8 @@ function _serialize(nameStack, root) {
     } else if (root.data.isArray) {
         // When data is an array, add all array item to the subxml.
         var itemName = root.name + "Item";
-        if (this.behavior.arrays[nameStack]) {
-            itemName = this.behavior.arrays[nameStack];
+        if (this.behavior.arrays[fieldPath]) {
+            itemName = this.behavior.arrays[fieldPath];
         }
         for (var i = 0; i < root.data.length; i++) {
             if (subxml === null) {
@@ -202,13 +202,13 @@ function _serialize(nameStack, root) {
             }
             var item = root.data[i];
             try {
-                subxml += this._serialize(nameStack + "." + itemName, {
+                subxml += this._serialize(fieldPath + "." + itemName, {
                     name: itemName,
                     data: item
                 });
             } catch (err) {
                 var suberr = new Error("An error occured while serializing " +
-                        "an array at index [" + i + "] at " + nameStack + 
+                        "an array at index [" + i + "] at " + fieldPath + 
                         ". See 'Error.innerError' for more details.");
                 suberr.innerError = err;
                 throw suberr;
@@ -234,7 +234,7 @@ function _serialize(nameStack, root) {
                     }
                 } else {
                     // Serialize the non-attribute element.
-                    subxml += this._serialize(nameStack + "." + elem, {
+                    subxml += this._serialize(fieldPath + "." + elem, {
                         name: elem,
                         data: root.data[elem]
                     });
