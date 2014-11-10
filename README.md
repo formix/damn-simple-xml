@@ -1,278 +1,109 @@
+<img src="https://travis-ci.org/formix/damn-simple-xml.svg?branch=master" 
+     alt="Travis-CI">
+
 damn-simple-xml
 ===============
 
-Simple XML to JavaScript object deserializer for Node
+**Damn Simple XML** (DSX) is an XML serialization library meant to ease 
+programmer's life in NodeJS.
 
-## What damn-simple-xml is good for?
+## Documentation
 
-*damn-simple-xml* (or DSX) does a really good job at deserializing XML data of a
-formely serialized object from another language like C# or Java.
+Consult the full [API Reference](wiki/Api-Reference) for detailed 
+documentation.
 
 ## Usage
 
-Having the variable named *xmlString* containing:
-```xml
-<employee id="123">
-  <firstName>John</firstName>
-  <lastName>Doe</lastName>
-  <dateOfBirth>1984-03-12T00:00:00.000Z</dateOfBirth>
-</employee>
-```
+### Serialization
 
-This code:
 ```javascript
-var dsx = require("damn-simple-xml");
-dsx.deserialize(xmlString, function(pair) {
-   console.log(pair); 
+var Serializer = require("damn-simple-xml");
+var serializer = new Serializer({
+  arrays: {
+    "employees" : "employee"
+  },
+  attributes: {
+    "employees.employee": ["id", "department"]
+  }
+});
+
+var employees = [
+  { 
+    id: 123,
+    department: "Marketting",
+    fullname: "John Doe"
+  },
+  { 
+    id: 456,
+    department: "Administration",
+    fullname: "Jane Doe"
+  }
+];
+
+serializer.serialize({
+  name: "employees", 
+  data: employees
+}, function(err, xml) {
+  console.log(xml);
 });
 ```
 
-Will print:
-```javascript
-{
-    root: "employee",
-    data: {
-        id: 123,
-        firstName: "John",
-        lastName: "Doe",
-        dateOfBirth: "1984-03-27T00:00:00.000Z"
-    }
-}
+The previous code will result in a one line unformatted xml corresponding to:
+
+```xml
+<employees>
+  <employee id="123" department="Marketting">
+    <fullname>John Doe</fullname>
+  </employee>
+  <employee id="456" department="Administration">
+    <fullname>Jane Doe</fullname>
+  </employee>
+</employees>
 ```
 
-As described in the Behavior section, DSX will create arrays when meeting
-the second occurence of the same node name at the same level. Sometimes,
-it may be more convenient to declare which fields should be instanciated as
-array up front. To do this, you can call *damn-simple-xml* with an object 
-instead of an xmlstring as first parameter. That object must contain the
-following fields:
+### Deserialization
 
-* xml: The XML string.
-* arrayNames: An array of strings containing all field names that have to be created as an array instead of an object.
-
-For example, if `xmlstrinig = `
+Given the floowing XML:
 ```xml
-<employee id="123">
+<employee>
   <firstName>John</firstName>
   <lastName>Doe</lastName>
-  <dateOfBirth>1984-03-12T00:00:00.000Z</dateOfBirth>
-  <languages>
-    <language>Java</language>
-  </languages>
-</employee>
-```
-
-This code:
-```javascript
-var dsx = require("damn-simple-xml");
-dsx.deserialize({
-        xml: xmlstring,
-        arrayNames: ["languages"]
-    }, function(pair) {
-   console.log(pair); 
-});
-```
-
-Will print:
-```javascript
-{
-    root: "employee",
-    data: {
-        id: 123,
-        firstName: "John",
-        lastName: "Doe",
-        dateOfBirth: "1984-03-27T00:00:00.000Z",
-        languages: ["Java"]
-    }
-}
-```
-
-## Behavior
-
-1) Attributes are directly rendered as fields in the resulting object.
-
-```xml
-<employee id="123">
-  <firstName>John</firstName>
-  <lastName>Doe</lastName>
-  <dateOfBirth>1984-03-12T00:00:00.000Z</dateOfBirth>
-</employee>
-```
-
-```javascript
-{
-    id: 123,
-    firstName: "John",
-    lastName: "Doe",
-    dateOfBirth: "1984-03-27T00:00:00.000Z"
-}
-```
-
-2) Arrays are discovered when a second node with the same name is found
-
-```xml
-<employee id="123">
-  <firstName>John</firstName>
-  <lastName>Doe</lastName>
-  <dateOfBirth>1984-03-12T00:00:00.000Z</dateOfBirth>
-  <languages>
-    <language>Java</language>
-    <language>C++</language>
-    <language>C#</language>
-    <language>JavaScript</language>
-  </languages>
-</employee>
-```
-
-```javascript
-{
-    id: 123,
-    firstName: "John",
-    lastName: "Doe",
-    dateOfBirth: "1984-03-27T00:00:00.000Z",
-    languages: ["Java", "C++", "C#", "JavaScript"]
-}
-```
-
-3) objects are created all the way down
-
-```xml
-<employee id="123">
-  <firstName>John</firstName>
-  <lastName>Doe</lastName>
-  <dateOfBirth>1984-03-12T00:00:00.000Z</dateOfBirth>
-  <department>
-    <name>Marketting</name>
-    <level>4</level>
-    <supervisor>
-      <firstName>Amanda</name>
-      <lastName>Clarke</lastName>
-      <email>amanda.clarke@revenge.tv</email>
-    <supervisor>
-  </department>
-</employee>
-```
-
-```javascript
-{
-    id: 123,
-    firstName: "John",
-    lastName: "Doe",
-    dateOfBirth: "1984-03-27T00:00:00.000Z",
-    department: {
-        name: "Marketting",
-        supervisor: {
-            firstName: "Amanda",
-            lastName: "Clarke",
-            email: "amanda.clarke@revenge.tv"
-        }
-    }
-}
-```
-
-4) When there is no second node with the same name then an object is created
-
-This is what DSX will do by default but you can override this behavior by 
-providing an object to the deserialize method containing an array of field
-names that should be considered as array. See the Usage section for the 
-correct syntax.
-
-```xml
-<employee id="123">
-  <firstName>John</firstName>
-  <lastName>Doe</lastName>
-  <dateOfBirth>1984-03-12T00:00:00.000Z</dateOfBirth>
-  <languages>
-    <language>Java</language>
-  </languages>
-</employee>
-```
-
-```javascript
-{
-    id: 123,
-    firstName: "John",
-    lastName: "Doe",
-    dateOfBirth: "1984-03-27T00:00:00.000Z",
-    languages: {
-        language: "Java"
-    }
-}
-```
-
-5) Elements that combine attributes and text
-
-Since version 0.5.5, when a node containing text have attributes, the text 
-content is set in a "_text" field beside other possible attributes.
-
-```xml
-<player>
-  <name>Tom Brady</name>
   <emails>
-    <email type="personal">me@tombrady.com</email>
-    <email type="work">tom.brady@patriots.com</email>
-  </emails>
-</player>
+    <email type="personal">john.doe@nobody.com</email>
+  <emails>
+</employee>
 ```
 
-Will be rendered as:
+
+```javascript
+var Serializer = require("damn-simple-xml");
+var serializer = new Serializer({
+  arrays: {
+    "employee.emails": "email"
+  }
+)};
+
+
+serializer.deserialize(xml, function(err, root) {
+  console.log(root);
+});
+```
+
+Will display the following Javascritp object:
+
 ```javascript
 {
-    name: "Tom Brady",
+  name: "employee",
+  data: {
+    firstName: "John",
+    lastName: "Doe",
     emails: [
-        {
-            type: "personal",
-            _text: "me@tombrady.com"
-        },
-        {
-            type: "work",
-            _text: "tom.brady@patriots.com"
-        }
+      {
+        type: "personal",
+        _text: "john.doe@nobody.com"
+      }
     ]
+  }
 }
 ```
 
-6) Elements that combine sub-elements and text
-
-Since version 0.5.7, when a node contains both text and sub-nodes, a "_text" field
-is added to the parent node and will contains a concatenation of all sub text in the
-corresponding node.
-
-For example:
-
-```xml
-<mixed>
-
-    <nodeTextNode>
-        <node1>node 1 value</node1>
-        text
-        <node2>node 2 value</node2>
-    </nodeTextNode>
-
-    <textNodeText>
-        text1
-        <node>node value</node>
-        text2
-    </textNodeText>
-
-</mixed>
-```
-
-will produce the following object:
-
-```javascript
-{
-    root: "mixed",
-    data: { 
-        nodeTextNode: { 
-            node1: 'node 1 value',
-            _text: '\n        text\n        ',
-            node2: 'node 2 value' 
-        },
-        textNodeText: { 
-            _text: '\n        text1\n        \n        text2\n    ',
-            node: 'node value' 
-         } 
-    }
-}
-```

@@ -69,7 +69,9 @@ function deserialize(xml, callback) {
                 stack.peek().data[root.name] = convert(root.data);
             }
         } else {
-            callback(null, root); // parsing ends here!
+            process.nextTick(function() {
+                callback(null, root); // parsing ends here!
+            });
         }
     }
 
@@ -119,9 +121,13 @@ function deserialize(xml, callback) {
 function serialize(root, callback) {
     try {
         var xml = this._serialize(root.name, root, callback); 
-        callback(null, xml);
+        process.nextTick(function() {
+           callback(null, xml);
+        }
     } catch (err) {
-        callback(err);
+        process.nextTick(function() {
+            callback(err);
+        }
     }
 }
 
