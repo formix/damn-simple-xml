@@ -1,16 +1,17 @@
 damn-simple-xml
 ===============
 
+<a href="https://travis-ci.org/formix/damn-simple-xml">
+<img src="https://travis-ci.org/formix/damn-simple-xml.svg?branch=master" 
+     alt="Travis-CI">
+</a>
+
 Damn Simple XML (DSX) is an XML serialization library meant to ease 
 programmer's life in NodeJS.
 
-<img src="https://travis-ci.org/formix/damn-simple-xml.svg?branch=master" 
-     alt="Travis-CI">
-
 ## Documentation
 
-Consult the full [API Reference](wiki/Api-Reference) for detailed 
-documentation.
+Consult the full [API Reference](https://github.com/formix/damn-simple-xml/wiki/Api-Reference) for detailed documentation.
 
 ## Usage
 
@@ -63,7 +64,7 @@ The previous code will result in a one line unformatted xml corresponding to:
 
 ### Deserialization
 
-Given the floowing XML:
+Given the following XML:
 ```xml
 <employee>
   <firstName>John</firstName>
