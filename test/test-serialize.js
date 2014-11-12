@@ -52,58 +52,76 @@ describe("DamnSimpleXml.serialize()", function() {
                 }
             });
         });
-/*
+
         it("should be '<boolean>false</boolean>'", function(done) {
+            var xml = "";
             dsx.serialize({
                 name: "boolean",
                 data: false
-            }, function(err, xml) {
+            }, function(err, xmlpart, level) {
                 if (err) throw err;
-                assert.equal(xml, "<boolean>false</boolean>");
-                done();
+                xml += xmlpart;
+                if (level === 0) {
+                    assert.equal(xml, "<boolean>false</boolean>");
+                    done();
+                }
             });
         });
 
         it("should be '<number>0</number>'", function(done) {
+            var xml = "";
             dsx.serialize({
                 name: "number",
                 data: 0
-            }, function(err, xml) {
+            }, function(err, xmlpart, level) {
                 if (err) throw err;
-                assert.equal(xml, "<number>0</number>");
-                done();
+                xml += xmlpart;
+                if (level === 0) {
+                    assert.equal(xml, "<number>0</number>");
+                    done();
+                }
             });
         });
-*/
+
     });
-/*
+
     describe("Simple data at the root node", function() {
         
         it("sould be '<hello>World!</hello>'", function(done) {
+            var xml = "";
             dsx.serialize({
                 name: "hello", 
                 data: "World!"
-            }, function(err, xml) {
+            }, function(err, xmlpart, level) {
                 if (err) throw err;
-                assert.equal(xml, "<hello>World!</hello>");
-                done();
+                xml += xmlpart;
+                if (level === 0) {
+                    assert.equal(xml, "<hello>World!</hello>");
+                    done();
+                }
             });
         });
 
 
         it("should be <date>2011-11-11T11:11:11.111Z</date>", function(done) {
+            var xml = "";
             dsx.serialize({
                 name: "date",
                 data: new Date("2011-11-11T11:11:11.111Z")
-            }, function (err, xml) {
+            }, function (err, xmlpart, level) {
                 if (err) throw err;
-                assert.equal(xml, "<date>2011-11-11T11:11:11.111Z</date>");
-                done();
+                xml += xmlpart;
+                if (level === 0) {
+                    assert.equal(xml, "<date>2011-11-11T11:11:11.111Z</date>");
+                    done();
+                }
             });
         });
 
+
     });
 
+/*
 
     describe("An object containing a '_text' field", function() {
         it("should be <email>nobody@nowhere.com</email>", 
