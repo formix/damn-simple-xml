@@ -7,7 +7,6 @@ module.exports = function(behavior) {
     this.behavior    = createBehavior(behavior);
     this.deserialize = deserialize;
     this.serialize   = serialize;
-    this._serialize  = _serialize;
 }
 
 
@@ -119,44 +118,42 @@ function deserialize(xml, callback) {
 
 
 function serialize(root, callback) {
-    try {
-        var xml = this._serialize(root.name, root, callback); 
-        process.nextTick(function() {
-           callback(null, xml);
-        });
-    } catch (err) {
-        process.nextTick(function() {
-            callback(err);
-        });
-    }
+    var localBehavior = this.behavior;
+    process.nextTick(function() {
+        _serialize(1, localBehavior, root.name, root, callback); 
+    });
 }
 
 
-function _serialize(fieldPath, root) {
+function _serialize(level, behavior, fieldPath, root, callback) {
 
     if (!root) {
-        throw new Error("The root parameter is not set at " + fieldPath);
+        callback(new Error("The root parameter is not set at " + fieldPath));
+        return;
     }
 
     if (!root.name) {
-        throw new Error("The root.name value must be set to a non-empty " +
-               "string at " + fieldPath);
+        callback(new Error("The root.name value must be set to a non-empty " +
+               "string at " + fieldPath));
+        return;
     }
 
     if (root.name.indexOf(" ") > -1) {
-        throw new Error("No space allowed in root.name value at " + fieldPath);
+        callback(new Error("No space allowed in root.name value at " + fieldPath));
+        return;
     }
 
     if ((root.data === null) || (root.data === undefined)) {
         // data is null, undefined or an empty string.
-        return "<" + root.name + " />";
+        callback(null, "<" + root.name + " />", level - 1);
+        return;
     }
 
-    var xml = "<" + root.name; // Create the current element
+    callback(null, "<" + root.name, level); // Create the current element
 
     // Add attributes if any
     var attrset = {};
-    var attributes = this.behavior.attributes[fieldPath];
+    var attributes = behavior.attributes[fieldPath];
     if (attributes !== undefined) {
         for (var i = 0; i < attributes.length; i++) {
             var name = attributes[i];
@@ -165,11 +162,12 @@ function _serialize(fieldPath, root) {
             // Add an attribute only if the field is present and defined.
             if (value !== undefined) {
                 if (name.indexOf(" ") > -1) {
-                    throw new Error("An attribute's name cannot " +
+                    callback(new Error("An attribute's name cannot " +
                             "contain spaces at " + fieldPath + 
-                            " attribute: " + name);
+                            " attribute: " + name));
+                    return;
                 }
-                xml += " " + name;
+                callback(null, " " + name, level);
                 if (value != null) {
                     var attrValue = "";
                     if (value instanceof Date) {
@@ -177,25 +175,30 @@ function _serialize(fieldPath, root) {
                     } else if (isNative(value)) {
                         attrValue = value.toString();
                     } else {
-                        throw new Error("An attribute's value cannot " +
+                        callback(new Error("An attribute's value cannot " +
                                 "be an object at " + fieldPath + 
-                                " attribute: " + name);
+                                " attribute: " + name));
+                        return;
                     }
                     // Add the value only if non-null
-                    xml += "=\"" + attrValue + "\"";
+                    callback(null, "=\"" + attrValue + "\"", level);
                 }
             }
         }
     }
 
-    var datatype = typeof(root.data);
+    callback(null, ">", level);
+    
     // create subxml data from sub elements.
-    var subxml = null;
+    var datatype = typeof(root.data);
+    var hasSubElements = false;
     if ((datatype === "string") || (datatype === "boolean") || 
             (datatype === "number")) {
-        subxml = root.data.toString();
+        callback(null, root.data.toString(), level);
+        hasSubElements = true;
     } else if (root.data instanceof Date) {
-        subxml = root.data.toISOString();
+        callback(null, root.data.toISOString(), level);
+        hasSubElements = true;
     } else if (root.data.isArray) {
         // When data is an array, add all array item to the subxml.
         var itemName = root.name + "Item";
@@ -203,22 +206,17 @@ function _serialize(fieldPath, root) {
             itemName = this.behavior.arrays[fieldPath];
         }
         for (var i = 0; i < root.data.length; i++) {
-            if (subxml === null) {
-                subxml = "";
-            }
             var item = root.data[i];
-            try {
-                subxml += this._serialize(fieldPath + "." + itemName, {
-                    name: itemName,
-                    data: item
-                });
-            } catch (err) {
-                var suberr = new Error("An error occured while serializing " +
-                        "an array at index [" + i + "] at " + fieldPath + 
-                        ". See 'Error.innerError' for more details.");
-                suberr.innerError = err;
-                throw suberr;
-            }
+            _serialize(
+                    level++, 
+                    behavior, 
+                    fieldPath + "." + itemName, 
+                    {
+                        name: itemName,
+                        data: item
+                    },
+                    callback);
+            hasSubElements = true;
         }
     } else {
         // Otherwise, data is an object and we add-up the serialization 
@@ -226,40 +224,42 @@ function _serialize(fieldPath, root) {
         for (var elem in root.data) {
             // skip attribues
             if (!attrset[elem]) {
-                if (subxml === null) {
-                    subxml = "";
-                }
+                hasSubElements = true;
                 if (elem === "_text") {
                     if (isNative(root.data[elem])) {
-                        subxml += root.data[elem];
+                        callback(null, root.data[elem], level);
                     } else if (root.data[elem] instanceof Date) {
-                        subxml += root.data[elem].toISOString();
+                        callback(null, root.data[elem].toISOString(), level);
                     } else {
-                        throw new Error("A _text field cannot contain an " +
-                                "object or array.");
+                        callback(new Error("A _text field cannot contain an " +
+                                "object or array."));
+                        return;
                     }
                 } else {
                     // Serialize the non-attribute element.
-                    subxml += this._serialize(fieldPath + "." + elem, {
-                        name: elem,
-                        data: root.data[elem]
-                    });
+                    _serialize(
+                            level++, 
+                            behavior, 
+                            fieldPath + "." + elem, 
+                            {
+                                name: elem,
+                                data: root.data[elem]
+                            },
+                            callback);
                 }
             }
         }
     }
 
 
-    if (subxml === null) {
+    if (!hasSubElements) {
         // No child nodes, close the opening tag as an empty tag.
-        xml += " />";
+        callback(null, " />", level - 1);
     } else {
         // There is some child elements, close the opening element, add
         // the subxml and add the closing tag.
-        xml += ">" + subxml + "</" + root.name + ">";
+        callback(null, "</" + root.name + ">", level - 1);
     }
-
-    return xml;
 }
 
 
