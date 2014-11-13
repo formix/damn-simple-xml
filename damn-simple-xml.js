@@ -148,7 +148,7 @@ function _serialize(root, behavior, fieldPath, level, callback) {
     }
     
     // creates the inner xml data.
-    createTagContent(root, behavior, level, fieldPath, attrset, callback);
+    createTagContent(root, behavior, fieldPath, level, attrset, callback);
    
     // Terminate the current tag.
     callback(null, "</" + root.name + ">", level - 1);
@@ -245,7 +245,7 @@ function closeOpeningTag(root, behavior, fieldPath, level, callback) {
 }
 
 
-function createTagContent(root, behavior, level, fieldPath, attrset, callback) {
+function createTagContent(root, behavior, fieldPath, level, attrset, callback) {
     // create subxml data from sub elements.
     var datatype = typeof(root.data);
     if ((datatype === "string") || (datatype === "boolean") || 
