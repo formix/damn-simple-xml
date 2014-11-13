@@ -127,32 +127,57 @@ function serialize(root, callback) {
 
 function _serialize(level, behavior, fieldPath, root, callback) {
 
-    if (!root) {
-        callback(new Error("The root parameter is not set at " + fieldPath));
+    // Checks if the root parameter is valid
+    if(!rootIsValid(root, callback)) {
         return;
     }
 
-    if (!root.name) {
-        callback(new Error("The root.name value must be set to a non-empty " +
-               "string at " + fieldPath));
-        return;
-    }
-
-    if (root.name.indexOf(" ") > -1) {
-        callback(new Error("No space allowed in root.name value at " + fieldPath));
-        return;
-    }
-
+    // If there is no data associated with the current element, dump a
+    // simple autoclosing tag and exits the function. 
     if ((root.data === null) || (root.data === undefined)) {
-        // data is null, undefined or an empty string.
         callback(null, "<" + root.name + " />", level - 1);
         return;
     }
 
-    callback(null, "<" + root.name, level); // Create the current element
-
+    // Creates the opening tag
+    callback(null, "<" + root.name, level);
+    var attrset = addAttributes(root, behavior, fieldPath, level, callback);
+    var tagtype = closeOpeningTag(root, behavior, fieldPath, level, callback);
+    if (tagtype === "autoclose") {
+        return;
+    }
     
-    // Add attributes if any
+    // creates the inner xml data.
+    createTagContent(root, behavior, level, fieldPath, attrset, callback);
+   
+    // Terminate the current tag.
+    callback(null, "</" + root.name + ">", level - 1);
+}
+
+
+
+function rootIsValid(root, callback) {
+    if (!root) {
+        callback(new Error("The root parameter is not set at " + fieldPath));
+        return false;
+    }
+    if (!root.name) {
+        callback(new Error("The root.name value must be set to a non-empty " +
+               "string at " + fieldPath));
+        return false;
+    }
+    if (root.name.indexOf(" ") > -1) {
+        callback(new Error("No space allowed in root.name value at " + fieldPath));
+        return false;
+    }
+    return true;
+}
+
+
+// Add attributes if any
+// returns an attribute set.
+function addAttributes(root, behavior, fieldPath, level, callback) {
+
     var attrset = {};
     var attributes = behavior.attributes[fieldPath];
     
@@ -190,13 +215,20 @@ function _serialize(level, behavior, fieldPath, root, callback) {
             }
         }
     }
-    
+
+    return attrset;
+}
 
 
+function closeOpeningTag(root, behavior, fieldPath, level, callback) {
     // Check if the openig tag is autoclosing or not.
+    var attributes = behavior.attributes[fieldPath];
+    if (attributes === undefined) {
+        attributes = [];
+    }
     if ((root.data === null) || (root.data === undefined)) {
         callback(null, " />", level - 1);
-        return;
+        return "autoclose";
     } else if (isNative(root.data) || (root.data instanceof Date) || 
             (root.data._text !== undefined)) {
         callback(null, ">", level);
@@ -206,12 +238,14 @@ function _serialize(level, behavior, fieldPath, root, callback) {
             callback(null, ">", level);
         } else {
             callback(null, " />", level - 1);
-            return;
+            return "autoclose";
         }
     }
-    
-   
+    return "opening";
+}
 
+
+function createTagContent(root, behavior, level, fieldPath, attrset, callback) {
     // create subxml data from sub elements.
     var datatype = typeof(root.data);
     if ((datatype === "string") || (datatype === "boolean") || 
@@ -268,10 +302,6 @@ function _serialize(level, behavior, fieldPath, root, callback) {
             }
         }
     }
-
-
-    // Terminate the current element.
-    callback(null, "</" + root.name + ">", level - 1);
 }
 
 
