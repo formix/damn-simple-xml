@@ -120,12 +120,12 @@ function deserialize(xml, callback) {
 function serialize(root, callback) {
     var localBehavior = this.behavior;
     process.nextTick(function() {
-        _serialize(1, localBehavior, root.name, root, callback); 
+        _serialize(root, localBehavior, root.name, 1, callback); 
     });
 }
 
 
-function _serialize(level, behavior, fieldPath, root, callback) {
+function _serialize(root, behavior, fieldPath, level, callback) {
 
     // Checks if the root parameter is valid
     if(!rootIsValid(root, callback)) {
@@ -262,13 +262,13 @@ function createTagContent(root, behavior, level, fieldPath, attrset, callback) {
         for (var i = 0; i < root.data.length; i++) {
             var item = root.data[i];
             _serialize(
-                    level + 1, 
-                    behavior, 
-                    fieldPath + "." + itemName, 
                     {
                         name: itemName,
                         data: item
                     },
+                    behavior, 
+                    fieldPath + "." + itemName, 
+                    level + 1, 
                     callback);
         }
     } else {
@@ -290,13 +290,13 @@ function createTagContent(root, behavior, level, fieldPath, attrset, callback) {
                 } else {
                     // Serialize the non-attribute element.
                     _serialize(
-                            level + 1, 
-                            behavior, 
-                            fieldPath + "." + elem, 
                             {
                                 name: elem,
                                 data: root.data[elem]
                             },
+                            behavior, 
+                            fieldPath + "." + elem, 
+                            level + 1, 
                             callback);
                 }
             }
