@@ -269,6 +269,8 @@ function _serialize(level, behavior, fieldPath, root, callback) {
         }
     }
 
+
+    // Terminate the current element.
     callback(null, "</" + root.name + ">", level - 1);
 }
 
