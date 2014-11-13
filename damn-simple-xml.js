@@ -146,7 +146,7 @@ function _serialize(root, behavior, fieldPath, level, callback) {
     if (tagtype === "autoclose") {
         return;
     }
-    
+
     // creates the inner xml data.
     createTagContent(root, behavior, fieldPath, level, attrset, callback);
    
