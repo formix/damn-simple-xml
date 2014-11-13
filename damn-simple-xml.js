@@ -151,64 +151,84 @@ function _serialize(level, behavior, fieldPath, root, callback) {
 
     callback(null, "<" + root.name, level); // Create the current element
 
+    
     // Add attributes if any
     var attrset = {};
     var attributes = behavior.attributes[fieldPath];
-    if (attributes !== undefined) {
-        for (var i = 0; i < attributes.length; i++) {
-            var name = attributes[i];
-            var value = root.data[name];
-            attrset[name] = true;
-            // Add an attribute only if the field is present and defined.
-            if (value !== undefined) {
-                if (name.indexOf(" ") > -1) {
-                    callback(new Error("An attribute's name cannot " +
-                            "contain spaces at " + fieldPath + 
+    
+    if (attributes === undefined) {
+        attributes = [];
+    }
+
+    for (var i = 0; i < attributes.length; i++) {
+        var name = attributes[i];
+        var value = root.data[name];
+        attrset[name] = true;
+        // Add an attribute only if the field is present and defined.
+        if (value !== undefined) {
+            if (name.indexOf(" ") > -1) {
+                callback(new Error("An attribute's name cannot " +
+                        "contain spaces at " + fieldPath + 
+                        " attribute: " + name));
+                return;
+            }
+            callback(null, " " + name, level);
+            if (value != null) {
+                var attrValue = "";
+                if (value instanceof Date) {
+                    attrValue = value.toISOString();
+                } else if (isNative(value)) {
+                    attrValue = value.toString();
+                } else {
+                    callback(new Error("An attribute's value cannot " +
+                            "be an object at " + fieldPath + 
                             " attribute: " + name));
                     return;
                 }
-                callback(null, " " + name, level);
-                if (value != null) {
-                    var attrValue = "";
-                    if (value instanceof Date) {
-                        attrValue = value.toISOString();
-                    } else if (isNative(value)) {
-                        attrValue = value.toString();
-                    } else {
-                        callback(new Error("An attribute's value cannot " +
-                                "be an object at " + fieldPath + 
-                                " attribute: " + name));
-                        return;
-                    }
-                    // Add the value only if non-null
-                    callback(null, "=\"" + attrValue + "\"", level);
-                }
+                // Add the value only if non-null
+                callback(null, "=\"" + attrValue + "\"", level);
             }
         }
     }
-
-    callback(null, ">", level);
     
+
+
+    // Check if the openig tag is autoclosing or not.
+    if ((root.data === null) || (root.data === undefined)) {
+        callback(null, " />", level - 1);
+        return;
+    } else if (isNative(root.data) || (root.data instanceof Date) || 
+            (root.data._text !== undefined)) {
+        callback(null, ">", level);
+    } else {
+        var fieldCount = countFields(root.data);
+        if (attributes.length < fieldCount) {
+            callback(null, ">", level);
+        } else {
+            callback(null, " />", level - 1);
+            return;
+        }
+    }
+    
+   
+
     // create subxml data from sub elements.
     var datatype = typeof(root.data);
-    var hasSubElements = false;
     if ((datatype === "string") || (datatype === "boolean") || 
             (datatype === "number")) {
         callback(null, root.data.toString(), level);
-        hasSubElements = true;
     } else if (root.data instanceof Date) {
         callback(null, root.data.toISOString(), level);
-        hasSubElements = true;
     } else if (root.data.isArray) {
         // When data is an array, add all array item to the subxml.
         var itemName = root.name + "Item";
-        if (this.behavior.arrays[fieldPath]) {
-            itemName = this.behavior.arrays[fieldPath];
+        if (behavior.arrays[fieldPath]) {
+            itemName = behavior.arrays[fieldPath];
         }
         for (var i = 0; i < root.data.length; i++) {
             var item = root.data[i];
             _serialize(
-                    level++, 
+                    level + 1, 
                     behavior, 
                     fieldPath + "." + itemName, 
                     {
@@ -216,7 +236,6 @@ function _serialize(level, behavior, fieldPath, root, callback) {
                         data: item
                     },
                     callback);
-            hasSubElements = true;
         }
     } else {
         // Otherwise, data is an object and we add-up the serialization 
@@ -224,7 +243,6 @@ function _serialize(level, behavior, fieldPath, root, callback) {
         for (var elem in root.data) {
             // skip attribues
             if (!attrset[elem]) {
-                hasSubElements = true;
                 if (elem === "_text") {
                     if (isNative(root.data[elem])) {
                         callback(null, root.data[elem], level);
@@ -238,7 +256,7 @@ function _serialize(level, behavior, fieldPath, root, callback) {
                 } else {
                     // Serialize the non-attribute element.
                     _serialize(
-                            level++, 
+                            level + 1, 
                             behavior, 
                             fieldPath + "." + elem, 
                             {
@@ -251,15 +269,7 @@ function _serialize(level, behavior, fieldPath, root, callback) {
         }
     }
 
-
-    if (!hasSubElements) {
-        // No child nodes, close the opening tag as an empty tag.
-        callback(null, " />", level - 1);
-    } else {
-        // There is some child elements, close the opening element, add
-        // the subxml and add the closing tag.
-        callback(null, "</" + root.name + ">", level - 1);
-    }
+    callback(null, "</" + root.name + ">", level - 1);
 }
 
 
@@ -345,4 +355,13 @@ function createBehavior(behavior) {
         }
     }
     return opt;
+}
+
+
+function countFields(obj) {
+    var count = 0;
+    for (var field in obj) {
+        count++;
+    }
+    return count;
 }

@@ -121,22 +121,28 @@ describe("DamnSimpleXml.serialize()", function() {
 
     });
 
-/*
+
 
     describe("An object containing a '_text' field", function() {
+
         it("should be <email>nobody@nowhere.com</email>", 
         function(done) {
+            var xml = "";
             dsx.serialize({
                 name: "email",
                 data: {
                     _text: "nobody@nowhere.com"
                 }
-            }, function(err, xml) {
+            }, function(err, xmlpart, level) {
                 if (err) throw err;
-                assert.equal(xml, "<email>nobody@nowhere.com</email>");
-                done();
+                xml += xmlpart;
+                if (level === 0) {
+                    assert.equal(xml, "<email>nobody@nowhere.com</email>");
+                    done();
+                }
             });
         });
+
     });
 
 
@@ -144,6 +150,7 @@ describe("DamnSimpleXml.serialize()", function() {
         
         it("should be an array of department in the departments node", 
         function(done) {
+            var xml = "";
             
             var dsx2 = new Serializer({
                 arrays: {
@@ -161,14 +168,17 @@ describe("DamnSimpleXml.serialize()", function() {
                         name: "Shipping"
                     }
                 ]
-            }, function(err, xml) {
+            }, function(err, xmlpart, level) {
                 if (err) throw err;
-                assert.equal(xml, 
-                    "<departments>" +
-                    "<department><name>Sales</name></department>" +
-                    "<department><name>Shipping</name></department>" +
-                    "</departments>");
-                done();
+                xml += xmlpart;
+                if (level === 0) {
+                    assert.equal(xml, 
+                        "<departments>" +
+                        "<department><name>Sales</name></department>" +
+                        "<department><name>Shipping</name></department>" +
+                        "</departments>");
+                    done();
+                }
             });
 
         });
@@ -176,7 +186,9 @@ describe("DamnSimpleXml.serialize()", function() {
 
         it("should be an array of dep, in the deps node under the org node", 
         function(done) {
-            
+
+            var xml = "";            
+
             var dsx2 = new Serializer({
                 arrays: {
                     "organisation.departments": "department"
@@ -196,17 +208,20 @@ describe("DamnSimpleXml.serialize()", function() {
                         }
                     ]
                 }
-            }, function(err, xml) {
+            }, function(err, xmlpart, level) {
                 if (err) throw err;
-                assert.equal(xml, 
-                    "<organisation>" +
-                        "<title>OrgCorp</title>" +
-                        "<departments>" +
-                          "<department><name>Sales</name></department>" +
-                          "<department><name>Shipping</name></department>" +
-                        "</departments>" +
-                    "</organisation>");
-                done();
+                xml += xmlpart;
+                if (level == 0) {
+                    assert.equal(xml, 
+                        "<organisation>" +
+                            "<title>OrgCorp</title>" +
+                            "<departments>" +
+                              "<department><name>Sales</name></department>" +
+                              "<department><name>Shipping</name></department>" +
+                            "</departments>" +
+                        "</organisation>");
+                    done();
+                }
             });
 
         });
@@ -223,16 +238,20 @@ describe("DamnSimpleXml.serialize()", function() {
                 }
             });
 
+            var xml = "";
             dsx2.serialize({
                 name: "email",
                 data: {
                     type: "personnal",
                     _text: "nobody@nowhere.com"
                 }
-            }, function(err, xml) {
+            }, function(err, xmlpart, level) {
                 if (err) throw err;
-                assert.equal(xml, '<email type="personnal">nobody@nowhere.com</email>');
-                done();
+                xml += xmlpart;
+                if (level === 0) {
+                    assert.equal(xml, '<email type="personnal">nobody@nowhere.com</email>');
+                    done();
+                }
             });
         });
 
@@ -243,7 +262,8 @@ describe("DamnSimpleXml.serialize()", function() {
                     "department.supervisor" : ["number", "birthDate"]
                 }
             });
-            
+  
+            var xml = "";          
             dsx2.serialize({
                 name: "department",
                 data: {
@@ -255,16 +275,20 @@ describe("DamnSimpleXml.serialize()", function() {
                         lastName: "Doe"
                     }
                 }
-            }, function(err, xml) {
-                assert.equal(xml, "<department>" +
-                                    "<name>Sales and Marketting</name>" +
-                                    "<supervisor number=\"122\" " +
-                                            "birthDate=\"1972-02-16T00:00:00.000Z\">" +
-                                        "<firstName>John</firstName>" +
-                                        "<lastName>Doe</lastName>" +
-                                    "</supervisor>" +
-                                  "</department>");
-                done();
+            }, function(err, xmlpart, level) {
+                if (err) throw err;
+                xml += xmlpart;
+                if (level === 0) {
+                    assert.equal(xml, "<department>" +
+                                        "<name>Sales and Marketting</name>" +
+                                        "<supervisor number=\"122\" " +
+                                                "birthDate=\"1972-02-16T00:00:00.000Z\">" +
+                                            "<firstName>John</firstName>" +
+                                            "<lastName>Doe</lastName>" +
+                                        "</supervisor>" +
+                                      "</department>");
+                    done();
+                }
             });
         });
 
@@ -278,7 +302,8 @@ describe("DamnSimpleXml.serialize()", function() {
                     "department.employees": "employee"
                 }
             });
-            
+
+            var xml = "";            
             dsx2.serialize({
                 name: "department",
                 data: {
@@ -291,22 +316,50 @@ describe("DamnSimpleXml.serialize()", function() {
                         }
                     ]
                 }
-            }, function(err, xml) {
-                assert.equal(xml, "<department>" +
-                                    "<name>Sales and Marketting</name>" +
-                                    "<employees>" +
-                                        "<employee number=\"122\">" +
-                                            "<firstName>John</firstName>" +
-                                            "<lastName>Doe</lastName>" +
-                                        "</employee>" +
-                                    "</employees>" +
-                                  "</department>");
-                done();
+            }, function(err, xmlpart, level) {
+                if (err) throw err;
+                xml += xmlpart;
+                if (level === 0) {
+                    assert.equal(xml, "<department>" +
+                                        "<name>Sales and Marketting</name>" +
+                                        "<employees>" +
+                                            "<employee number=\"122\">" +
+                                                "<firstName>John</firstName>" +
+                                                "<lastName>Doe</lastName>" +
+                                            "</employee>" +
+                                        "</employees>" +
+                                      "</department>");
+                    done();
+                }
+            });
+        });
+
+
+        it("should be <email type=\"personal\" />", 
+        function(done) {
+
+            var dsx2 = new Serializer({
+                attributes: {
+                    "email": ["type"]
+                }
+            });
+
+            var xml = "";
+            dsx2.serialize({
+                name: "email",
+                data: {
+                    type: "personal"
+                }
+            }, function(err, xmlpart, level) {
+                if (err) throw err;
+                xml += xmlpart;
+                if (level === 0) {
+                    assert.equal(xml, "<email type=\"personal\" />");
+                    done();
+                }
             });
         });
 
     });
-
-*/
 
 });
