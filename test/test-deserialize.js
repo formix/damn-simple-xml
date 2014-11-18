@@ -6,6 +6,9 @@ var EOL = require('os').EOL;
 
 describe("DamnSimpleXml.deserialize()", function() {
 
+
+
+
     describe("simple.xml", function() {
         var expected = {
             id          : "jpg",
@@ -31,6 +34,23 @@ describe("DamnSimpleXml.deserialize()", function() {
                 });
             });
         });
+
+        it("should deserialize using a stream.Readable object", function(done) {
+            var xmlstream = fs.createReadStream("test/simple.xml", {
+                encoding: "utf8"
+            });
+            
+            dsx.deserialize(xmlstream, function(err, root) {
+                if (err) {
+                    console.log(err);
+                    done();
+                    return;
+                }
+                assert.deepEqual(root.data, expected);
+                done();
+            });
+        });
+        
     });
 
 

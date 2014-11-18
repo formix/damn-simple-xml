@@ -15,16 +15,33 @@ module.exports = function(behavior) {
 function deserialize(xml, callback) {
 
     var sax = require("sax");
-    var parser = sax.parser(true); // strict parser.
-    var stack = createStack();
+    var parser = {};
+    var saxstream = null
+    if (typeof(xml) === "string") {
+        parser = sax.parser(true); // strict parser.
+    } else if (typeof(xml.read) === "function") {
+        // We assume that we are a readstream.
+         saxstream = sax.createStream(true);
+    } else {
+        callback(new Error("The expected xml parameter must be either a " +
+                    "string or a stream.Readable"));
+    }
+    
 
+    var stack = createStack();
     var arrays = this.behavior.arrays;
     var texts = this.behavior.texts;
 
+
     parser.onerror = function(err) {
-        throw callback(err);
+        callback(err);
         return;
     }
+
+    if (saxstream !== null) {
+        saxstream.on("error", parser.onerror);
+    }
+
 
     parser.onopentag = function(node) {
         var obj = createObject(stack, node.name, arrays);
@@ -50,6 +67,10 @@ function deserialize(xml, callback) {
         
     }
 
+    if (saxstream !== null) {
+        saxstream.on("opentag", parser.onopentag);
+    }
+
 
     parser.onclosetag = function() {
         var root = stack.pop();
@@ -73,6 +94,10 @@ function deserialize(xml, callback) {
                 callback(null, root); // parsing ends here!
             });
         }
+    }
+
+    if (saxstream !== null) {
+        saxstream.on("closetag", parser.onclosetag);
     }
 
 
@@ -105,22 +130,44 @@ function deserialize(xml, callback) {
         }
     }
 
+    if (saxstream !== null) {
+        saxstream.on("text", parser.ontext);
+    }
+
 
     var cdata = "";
     parser.onopencdata = function() {
         cdata = "";
     }
 
+    if (saxstream !== null) {
+        saxstream.on("opencdata", parser.onopencdata);
+    }
+    
+
     parser.oncdata = function(text) {
         cdata += text;
     }
+
+    if (saxstream !== null) {
+        saxstream.on("cdata", parser.oncdata);
+    }
+
 
     parser.onclosecdata = function() {
         parser.ontext(cdata);
     }
 
+    if (saxstream !== null) {
+        saxstream.on("closecdata", parser.onclosecdata);
+    }
+
     
-    parser.write(xml).close();
+    if (typeof(xml) === "string") {
+        parser.write(xml).close();
+    } else {
+        xml.pipe(saxstream);
+    }
     
 }
 

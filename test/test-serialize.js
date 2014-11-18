@@ -143,7 +143,7 @@ describe("DamnSimpleXml.serialize()", function() {
             });
         });
 
-        it("should be <email>nobody@nowhere.com</email> but with a declared text field", 
+        it("should be <email>nobody@nowhere.com</email> with a declared text field", 
         function(done) {
             var dsx2 = new Serializer({
                 texts: {
