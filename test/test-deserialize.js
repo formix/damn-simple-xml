@@ -310,7 +310,49 @@ describe("DamnSimpleXml.deserialize()", function() {
            
         }); 
 
+
+        it("should deserialize according to behavior.texts.", 
+        function(done) {
+
+            var expected2 = { 
+                nodeTextNode: { 
+                    node1: "node 1 value",
+                    myText: "text",
+                    node2: "node 2 value"
+                },
+                textNodeText: { 
+                    myText2: "text1 text2",
+                    node: "node value" 
+                 } 
+            };
+
+            var data = fs.readFileSync("test/mixed-element-text.xml" , {
+                encoding: "utf8"
+            });
+
+            var dsx2 = new Serializer({
+                texts: {
+                    "mixed.nodeTextNode": "myText",
+                    "mixed.textNodeText": "myText2"
+                }
+            });
+
+
+            dsx2.deserialize(data, function(err, root) {
+                if (err) {
+                    console.log(err);
+                    done();
+                    return;
+                }
+                assert.deepEqual(root.data, expected2);
+                done();
+            });
+
+        });
+
     });
+
+
 
 
 });

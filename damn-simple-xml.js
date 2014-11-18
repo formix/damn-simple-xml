@@ -19,6 +19,7 @@ function deserialize(xml, callback) {
     var stack = createStack();
 
     var arrays = this.behavior.arrays;
+    var texts = this.behavior.texts;
 
     parser.onerror = function(err) {
         throw callback(err);
@@ -79,17 +80,25 @@ function deserialize(xml, callback) {
         if (text.trim() === "") {
             return;
         }
+        var fieldPath = createNodeName(stack);
+        var textName = texts[fieldPath];
+        if (textName === undefined) {
+            textName = "_text";
+        } else if (stack.peek().data[textName] === undefined) {
+            stack.peek().data[textName] = "";
+        }
         if (typeof(stack.peek().data) === "object") {
             if (isEmpty(stack.peek().data)) {
                 stack.peek().data = text;
             } else {
-                if (stack.peek().data._text === undefined) {
-                    stack.peek().data._text = "";
+                // if the textname == "_text" it will be undefined here.
+                if (stack.peek().data[textName] === undefined) {
+                    stack.peek().data[textName] = "";
                 }
-                if (stack.peek().data._text.length > 0) {
-                    stack.peek().data._text += " ";
+                if (stack.peek().data[textName].length > 0) {
+                    stack.peek().data[textName] += " ";
                 }
-                stack.peek().data._text += text.trim();
+                stack.peek().data[textName] += text.trim();
             }
         } else if (typeof(stack.peek().data) === "string") {
             stack.peek().data += text.trim();
@@ -346,12 +355,19 @@ function createObject(stack, nodeName, arrayNameSet) {
 }
 
 
+// This function is super slow and should be replaced by a
+// string stack on the parser, or something.
 function createNodeName(stack, nodeName) {
     var name = "";
     for (var i = 0; i < stack.length; i++) {
         name += stack[i].name + ".";
     }
-    return name + nodeName;
+    if (nodeName !== undefined) {
+        return name + nodeName;
+    } else {
+        return name.substr(0, name.length - 1);
+    }
+
 }
 
 
@@ -379,7 +395,8 @@ function createStack() {
 function createBehavior(behavior) {
     var opt = {
         arrays : {},
-        attributes: {}
+        attributes: {},
+        texts: {}
     };
     if (behavior !== undefined) {
         for (var key in behavior) {
