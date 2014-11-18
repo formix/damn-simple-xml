@@ -143,6 +143,29 @@ describe("DamnSimpleXml.serialize()", function() {
             });
         });
 
+        it("should be <email>nobody@nowhere.com</email> but with a declared text field", 
+        function(done) {
+            var dsx2 = new Serializer({
+                texts: {
+                    "email": "value"
+                }
+            });
+            var xml = "";
+            dsx2.serialize({
+                name: "email",
+                data: {
+                    value: "nobody@nowhere.com"
+                }
+            }, function(err, xmlpart, level) {
+                if (err) throw err;
+                xml += xmlpart;
+                if (level === 0) {
+                    assert.equal(xml, "<email>nobody@nowhere.com</email>");
+                    done();
+                }
+            });
+        });
+
     });
 
 

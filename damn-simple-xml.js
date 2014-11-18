@@ -235,11 +235,15 @@ function closeOpeningTag(root, behavior, fieldPath, level, callback) {
     if (attributes === undefined) {
         attributes = [];
     }
+    var textName = behavior.texts[fieldPath];
+    if (textName === undefined) {
+        textName = "_text";
+    }
     if ((root.data === null) || (root.data === undefined)) {
         callback(null, " />", level - 1);
         return "autoclose";
     } else if (isNative(root.data) || (root.data instanceof Date) || 
-            (root.data._text !== undefined)) {
+            (root.data[textName] !== undefined)) {
         callback(null, ">", level);
     } else {
         var fieldCount = countFields(root.data);
@@ -283,10 +287,14 @@ function createTagContent(root, behavior, fieldPath, level, attrset, callback) {
     } else {
         // Otherwise, data is an object and we add-up the serialization 
         // result of all it child nodes.
+        var textName = behavior.texts[fieldPath];
+        if (textName === undefined) {
+            textName = "_text";
+        }
         for (var elem in root.data) {
             // skip attribues
             if (!attrset[elem]) {
-                if (elem === "_text") {
+                if (elem === textName) {
                     if (isNative(root.data[elem])) {
                         callback(null, root.data[elem], level);
                     } else if (root.data[elem] instanceof Date) {
