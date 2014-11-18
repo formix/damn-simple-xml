@@ -8,6 +8,8 @@ programmer's life in NodeJS.
 
 Consult the full [API Reference](https://github.com/formix/damn-simple-xml/wiki/Api-Reference) for detailed documentation.
 
+Version 0.6.0 and 1.0.0 both introduce breaking changes. Altough the version
+
 ## Usage
 
 ### Serialization
@@ -78,7 +80,6 @@ var serializer = new Serializer({
     "employee.emails": "email"
   }
 )};
-
 
 serializer.deserialize(xml, function(err, root) {
   console.log(root);
