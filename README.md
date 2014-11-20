@@ -8,6 +8,7 @@ programmer's life in NodeJS.
 
 Consult the full [API Reference](https://github.com/formix/damn-simple-xml/wiki/Api-Reference) for detailed documentation.
 
+
 Consult The [Release Notes](https://github.com/formix/damn-simple-xml/wiki/Release-Notes) here.
 
 ## Usage
