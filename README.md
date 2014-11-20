@@ -4,13 +4,19 @@ damn-simple-xml
 Damn Simple XML (DSX) is an XML serialization library meant to ease 
 programmer's life in NodeJS.
 
-## Documentation
+## Documentation and Release Notes
 
 Consult the full [API Reference](https://github.com/formix/damn-simple-xml/wiki/Api-Reference) for detailed documentation.
+
+Consult The [Release Notes](https://github.com/formix/damn-simple-xml/wiki/Release-Notes) here.
 
 ## Usage
 
 ### Serialization
+
+By default, all fields of an object will be serialized as a XML element. You
+can control serialization by providing a `behavior` object telling Damn 
+Simple Xml how to serialize attributes texts, arrays and arrays' items fields:
 
 ```javascript
 var Serializer = require("damn-simple-xml");
@@ -20,6 +26,9 @@ var serializer = new Serializer({
   },
   attributes: {
     "employees.employee": ["id", "department"]
+  },
+  texts: {
+    "employees.employee": "fullname"
   }
 });
 
@@ -32,15 +41,23 @@ var employees = [
   { 
     id: 456,
     department: "Administration",
-    fullname: "Jane Doe"
+    fullname: "Jane Dowell"
   }
 ];
 
+var xml = "";
 serializer.serialize({
   name: "employees", 
   data: employees
-}, function(err, xml) {
-  console.log(xml);
+}, function(err, xmlpart, level) {
+  if (err) {
+    console.log(err);
+    return;
+  }
+  xml += xmlpart;
+  if (level === 0) {  // 0 means seialization is done
+    console.log(xml);
+  }
 });
 ```
 
@@ -48,20 +65,20 @@ The previous code will result in a one line unformatted xml corresponding to:
 
 ```xml
 <employees>
-  <employee id="123" department="Marketting">
-    <fullname>John Doe</fullname>
-  </employee>
-  <employee id="456" department="Administration">
-    <fullname>Jane Doe</fullname>
-  </employee>
+  <employee id="123" department="Marketting">John Doe</employee>
+  <employee id="456" department="Administration">Jane Dowell</employee>
 </employees>
 ```
 
 ### Deserialization
 
+When unspecified, free text beside other XML elements is added to the "_text"
+field by default.
+
 Given the following XML:
 ```xml
 <employee>
+  This employee is terrible!
   <firstName>John</firstName>
   <lastName>Doe</lastName>
   <emails>
@@ -70,15 +87,16 @@ Given the following XML:
 </employee>
 ```
 
-
 ```javascript
 var Serializer = require("damn-simple-xml");
 var serializer = new Serializer({
   arrays: {
     "employee.emails": "email"
+  },
+  texts: {
+    "employee.emails.email": "value"
   }
 )};
-
 
 serializer.deserialize(xml, function(err, root) {
   console.log(root);
@@ -91,12 +109,13 @@ Will display the following Javascritp object:
 {
   name: "employee",
   data: {
+    _text: "This employee is terrible!",
     firstName: "John",
     lastName: "Doe",
     emails: [
       {
         type: "personal",
-        _text: "john.doe@nobody.com"
+        value: "john.doe@nobody.com"
       }
     ]
   }
