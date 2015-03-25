@@ -1,4 +1,4 @@
-damn-simple-xml ![travis-ci build result](https://api.travis-ci.org/formix/damn-simple-xml.svg?branch=master "damn-simple-xml master")
+damn-simple-xml [![travis-ci build result](https://api.travis-ci.org/formix/damn-simple-xml.svg?branch=master "damn-simple-xml master")](https://travis-ci.org/search/damn-simple-xml)
 ===============
 
 [![Join the chat at https://gitter.im/formix/damn-simple-xml](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/formix/damn-simple-xml?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
