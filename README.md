@@ -1,6 +1,8 @@
 damn-simple-xml
 ===============
 
+![travis-ci build result](https://api.travis-ci.org/formix/damn-simple-xml.svg?branch=master "damn-simple-xml master")
+
 Damn Simple XML (DSX) is an XML serialization library meant to ease 
 programmer's life in NodeJS.
 
