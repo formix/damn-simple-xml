@@ -1,5 +1,6 @@
 
 Array.prototype.isArray = true;
+var async = require("async");
 
 
 
@@ -172,7 +173,6 @@ function deserialize(xml, callback) {
 }
 
 
-
 function serialize(root, callback) {
     var localBehavior = this.behavior;
     process.nextTick(function() {
@@ -195,19 +195,27 @@ function _serialize(root, behavior, fieldPath, level, callback) {
         return;
     }
 
-    // Creates the opening tag
-    callback(null, "<" + root.name, level);
-    var attrset = addAttributes(root, behavior, fieldPath, level, callback);
-    var tagtype = closeOpeningTag(root, behavior, fieldPath, level, callback);
-    if (tagtype === "autoclose") {
-        return;
-    }
-
-    // creates the inner xml data.
-    createTagContent(root, behavior, fieldPath, level, attrset, callback);
-   
-    // Terminate the current tag.
-    callback(null, "</" + root.name + ">", level - 1);
+    var attrset = null;
+    async.series([function(done) {
+        // Creates the opening tag
+        callback(null, "<" + root.name, level);
+        attrset = addAttributes(root, behavior, fieldPath, level, callback);
+        var tagtype = closeOpeningTag(root, behavior, fieldPath, level, callback);
+        if (tagtype !== "autoclose") {
+            // done callback is called only if the tag is not auto-closing.
+            // We do not want the two other functions to be executed if the
+            // tag is auto-closed.
+            done();
+        }
+    }, function(done) {
+        // creates the inner xml data.
+        createTagContent(root, behavior, fieldPath, level, attrset, callback);
+        done();
+    }, function(done) {
+        // Terminate the current tag.
+        callback(null, "</" + root.name + ">", level - 1);
+        done();
+    }]);
 }
 
 
