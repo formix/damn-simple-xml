@@ -6,6 +6,8 @@ damn-simple-xml
 Damn Simple XML (DSX) is an XML serialization library meant to ease 
 programmer's life in NodeJS.
 
+[Google Group](https://groups.google.com/forum/?hl=fr#!forum/damn-simple-xml)
+
 ## Documentation and Release Notes
 
 Consult the full [API Reference](https://github.com/formix/damn-simple-xml/wiki/Api-Reference) for detailed documentation.
