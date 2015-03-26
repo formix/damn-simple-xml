@@ -15,161 +15,165 @@ module.exports = function(behavior) {
 
 function deserialize(xml, callback) {
 
-    var sax = require("sax");
-    var parser = {};
-    var saxstream = null
-    if (typeof(xml) === "string") {
-        parser = sax.parser(true); // strict parser.
-    } else if (typeof(xml.read) === "function") {
-        // We assume that we are a readstream.
-         saxstream = sax.createStream(true);
-    } else {
-        callback(new Error("The expected xml parameter must be either a " +
-                    "string or a stream.Readable"));
-    }
-    
+    var self = this;
+    process.nextTick(function() {
 
-    var stack = createStack();
-    var arrays = this.behavior.arrays;
-    var texts = this.behavior.texts;
-
-
-    parser.onerror = function(err) {
-        callback(err);
-        return;
-    }
-
-    if (saxstream !== null) {
-        saxstream.on("error", parser.onerror);
-    }
-
-
-    parser.onopentag = function(node) {
-        var obj = createObject(stack, node.name, arrays);
-        for (var key in node.attributes) {
-            obj[key] = convert(node.attributes[key]);
-        }
-
-        // Check if the current node content found a node after having 
-        // found some text in the current node.
-        if ((stack.length > 0) && (typeof(stack.peek().data) === "string")) {
-            // We have a "text" sibling to a <node>, we must change the 
-            // data to an object with a _text element before going on.
-            var text = stack.peek().data;
-            stack.peek().data = {
-                _text: text.trim()
-            };
-        } 
-
-        stack.push({
-            name: node.name,
-            data: obj
-        });
-        
-    }
-
-    if (saxstream !== null) {
-        saxstream.on("opentag", parser.onopentag);
-    }
-
-
-    parser.onclosetag = function() {
-        var root = stack.pop();
-        if (stack.length > 0) {
-            if (stack.peek().data.isArray) {
-                // Already an array, just push the data.
-                stack.peek().data.push(root.data);
-            } else if (typeof(stack.peek().data[root.name]) !== "undefined") {
-                // This is the second time we encouter a node at the same
-                // root. It means that we are in an array.
-                var data = stack.peek().data[root.name];
-                delete stack.peek().data[root.name];
-                stack.peek().data = [];
-                stack.peek().data.push(data);
-                stack.peek().data.push(root.data);
-            } else {
-                stack.peek().data[root.name] = convert(root.data);
-            }
+        var sax = require("sax");
+        var parser = {};
+        var saxstream = null
+        if (typeof(xml) === "string") {
+            parser = sax.parser(true); // strict parser.
+        } else if (typeof(xml.read) === "function") {
+            // We assume that we are a readstream.
+             saxstream = sax.createStream(true);
         } else {
-            process.nextTick(function() {
-                callback(null, root); // parsing ends here!
-            });
+            callback(new Error("The expected xml parameter must be either a " +
+                        "string or a stream.Readable"));
         }
-    }
+        
 
-    if (saxstream !== null) {
-        saxstream.on("closetag", parser.onclosetag);
-    }
+        var stack = createStack();
+        var arrays = self.behavior.arrays;
+        var texts = self.behavior.texts;
 
 
-    parser.ontext = function(text) {
-        if (text.trim() === "") {
+        parser.onerror = function(err) {
+            callback(err);
             return;
         }
-        var fieldPath = createNodeName(stack);
-        var textName = texts[fieldPath];
-        if (textName === undefined) {
-            textName = "_text";
-        } else if (stack.peek().data[textName] === undefined) {
-            stack.peek().data[textName] = "";
+
+        if (saxstream !== null) {
+            saxstream.on("error", parser.onerror);
         }
-        if (typeof(stack.peek().data) === "object") {
-            if (isEmpty(stack.peek().data)) {
-                stack.peek().data = text;
-            } else {
-                // if the textname == "_text" it will be undefined here.
-                if (stack.peek().data[textName] === undefined) {
-                    stack.peek().data[textName] = "";
-                }
-                if (stack.peek().data[textName].length > 0) {
-                    stack.peek().data[textName] += " ";
-                }
-                stack.peek().data[textName] += text.trim();
+
+
+        parser.onopentag = function(node) {
+            var obj = createObject(stack, node.name, arrays);
+            for (var key in node.attributes) {
+                obj[key] = convert(node.attributes[key]);
             }
-        } else if (typeof(stack.peek().data) === "string") {
-            stack.peek().data += text.trim();
+
+            // Check if the current node content found a node after having 
+            // found some text in the current node.
+            if ((stack.length > 0) && (typeof(stack.peek().data) === "string")) {
+                // We have a "text" sibling to a <node>, we must change the 
+                // data to an object with a _text element before going on.
+                var text = stack.peek().data;
+                stack.peek().data = {
+                    _text: text.trim()
+                };
+            } 
+
+            stack.push({
+                name: node.name,
+                data: obj
+            });
+            
         }
-    }
 
-    if (saxstream !== null) {
-        saxstream.on("text", parser.ontext);
-    }
-
-
-    var cdata = "";
-    parser.onopencdata = function() {
-        cdata = "";
-    }
-
-    if (saxstream !== null) {
-        saxstream.on("opencdata", parser.onopencdata);
-    }
-    
-
-    parser.oncdata = function(text) {
-        cdata += text;
-    }
-
-    if (saxstream !== null) {
-        saxstream.on("cdata", parser.oncdata);
-    }
+        if (saxstream !== null) {
+            saxstream.on("opentag", parser.onopentag);
+        }
 
 
-    parser.onclosecdata = function() {
-        parser.ontext(cdata);
-    }
+        parser.onclosetag = function() {
+            var root = stack.pop();
+            if (stack.length > 0) {
+                if (stack.peek().data.isArray) {
+                    // Already an array, just push the data.
+                    stack.peek().data.push(root.data);
+                } else if (typeof(stack.peek().data[root.name]) !== "undefined") {
+                    // This is the second time we encouter a node at the same
+                    // root. It means that we are in an array.
+                    var data = stack.peek().data[root.name];
+                    delete stack.peek().data[root.name];
+                    stack.peek().data = [];
+                    stack.peek().data.push(data);
+                    stack.peek().data.push(root.data);
+                } else {
+                    stack.peek().data[root.name] = convert(root.data);
+                }
+            } else {
+                process.nextTick(function() {
+                    callback(null, root); // parsing ends here!
+                });
+            }
+        }
 
-    if (saxstream !== null) {
-        saxstream.on("closecdata", parser.onclosecdata);
-    }
+        if (saxstream !== null) {
+            saxstream.on("closetag", parser.onclosetag);
+        }
 
-    
-    if (typeof(xml) === "string") {
-        parser.write(xml).close();
-    } else {
-        xml.pipe(saxstream);
-    }
-    
+
+        parser.ontext = function(text) {
+            if (text.trim() === "") {
+                return;
+            }
+            var fieldPath = createNodeName(stack);
+            var textName = texts[fieldPath];
+            if (textName === undefined) {
+                textName = "_text";
+            } else if (stack.peek().data[textName] === undefined) {
+                stack.peek().data[textName] = "";
+            }
+            if (typeof(stack.peek().data) === "object") {
+                if (isEmpty(stack.peek().data)) {
+                    stack.peek().data = text;
+                } else {
+                    // if the textname == "_text" it will be undefined here.
+                    if (stack.peek().data[textName] === undefined) {
+                        stack.peek().data[textName] = "";
+                    }
+                    if (stack.peek().data[textName].length > 0) {
+                        stack.peek().data[textName] += " ";
+                    }
+                    stack.peek().data[textName] += text.trim();
+                }
+            } else if (typeof(stack.peek().data) === "string") {
+                stack.peek().data += text.trim();
+            }
+        }
+
+        if (saxstream !== null) {
+            saxstream.on("text", parser.ontext);
+        }
+
+
+        var cdata = "";
+        parser.onopencdata = function() {
+            cdata = "";
+        }
+
+        if (saxstream !== null) {
+            saxstream.on("opencdata", parser.onopencdata);
+        }
+        
+
+        parser.oncdata = function(text) {
+            cdata += text;
+        }
+
+        if (saxstream !== null) {
+            saxstream.on("cdata", parser.oncdata);
+        }
+
+
+        parser.onclosecdata = function() {
+            parser.ontext(cdata);
+        }
+
+        if (saxstream !== null) {
+            saxstream.on("closecdata", parser.onclosecdata);
+        }
+
+        
+        if (typeof(xml) === "string") {
+            parser.write(xml).close();
+        } else {
+            xml.pipe(saxstream);
+        }
+
+    });
 }
 
 
