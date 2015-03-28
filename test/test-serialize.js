@@ -7,7 +7,7 @@ describe("DamnSimpleXml.serialize()", function() {
    
     var dsx = new Serializer();
 
-    describe("Empty and empty-like data", function() {
+    describe("Empty and empty-like (falsy) data", function() {
 
         it("should be '<undefined />'", function(done) {
             var xml = "";
@@ -169,7 +169,7 @@ describe("DamnSimpleXml.serialize()", function() {
     });
 
 
-    describe("Defining an array in options", function() {
+    describe("Defining an array in behaviors", function() {
         
         it("should be an array of department in the departments node", 
         function(done) {
@@ -252,7 +252,7 @@ describe("DamnSimpleXml.serialize()", function() {
     });
 
 
-    describe("Defining attributes in options", function() {
+    describe("Defining attributes in behaviors", function() {
 
         it("should be a root containing one attributes", function(done) {
             var dsx2 = new Serializer({
@@ -381,6 +381,36 @@ describe("DamnSimpleXml.serialize()", function() {
                     done();
                 }
             });
+        });
+
+    });
+
+
+    describe("Defining cdatas in behaviors",function() {
+
+        it("should create a CDATA wrapper", function(done) {
+
+            var dsx2 = new Serializer({
+                cdatas: {
+                    "test": "invalidxml"
+                }
+            });
+
+            var xml = "";
+            dsx2.serialize({
+                name: "test",
+                data: {
+                    invalidxml: "> this is invalid xml <"
+                }
+            }, function(err, xmlpart, level) {
+                assert.ifError(err);
+                xml += xmlpart;
+                if (level === 0) {
+                    assert.equal(xml, "<test><invalidxml><![CDATA[> this is invalid xml <]]></invalidxml></test>");
+                    done();
+                }
+            });
+
         });
 
     });

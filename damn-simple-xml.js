@@ -317,12 +317,31 @@ function closeOpeningTag(root, behavior, fieldPath, level, callback) {
 }
 
 
+function isContained(map, fieldPath, elemName) {
+    var home = fieldPath.substr(0, fieldPath.length - elemName.length - 1);
+    if (map[home]) {
+        return map[home].indexOf(elemName) > -1;
+    }
+    return false;
+}
+
+
 function createTagContent(root, behavior, fieldPath, level, attrset, callback) {
     // create subxml data from sub elements.
     var datatype = typeof(root.data);
     if ((datatype === "string") || (datatype === "boolean") || 
             (datatype === "number")) {
+        var iscdata = isContained(behavior.cdatas, fieldPath, root.name);
+        if (behavior.cdatas[fieldPath]) {
+            iscdata = behavior.cdatas[fieldPath].indexOf(root.name) > -1;
+        }
+        if (iscdata) {
+            callback(null, "<![CDATA[", level);
+        }
         callback(null, root.data.toString(), level);
+        if (iscdata) {
+            callback(null, "]]>", level);
+        }
     } else if (root.data instanceof Date) {
         callback(null, root.data.toISOString(), level);
     } else if (root.data.isArray) {
@@ -463,7 +482,8 @@ function createBehavior(behavior) {
     var opt = {
         arrays : {},
         attributes: {},
-        texts: {}
+        texts: {},
+        cdatas: {}
     };
     if (behavior !== undefined) {
         for (var key in behavior) {
