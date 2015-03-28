@@ -3,15 +3,15 @@ damn-simple-xml [![travis-ci build result](https://api.travis-ci.org/formix/damn
 
 [![Join the chat at https://gitter.im/formix/damn-simple-xml](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/formix/damn-simple-xml?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Damn Simple XML (DSX) is an XML serialization library meant to ease 
-programmer's life in NodeJS.
+Damn Simple XML (DSX) is an XML deserialization and serialization library with
+a small memory footprint. This is the only XML library that can handle CDATA 
+sections for both serialization and deserialization.
 
 [Google Group](https://groups.google.com/forum/?hl=fr#!forum/damn-simple-xml)
 
 ## Documentation and Release Notes
 
 Consult the full [API Reference](https://github.com/formix/damn-simple-xml/wiki/Api-Reference) for detailed documentation.
-
 
 Consult The [Release Notes](https://github.com/formix/damn-simple-xml/wiki/Release-Notes) here.
 
@@ -27,13 +27,15 @@ Simple Xml how to serialize attributes texts, arrays and arrays' items fields:
 var Serializer = require("damn-simple-xml");
 var serializer = new Serializer({
   arrays: {
-    "employees" : "employee"
+    "employees" : "employee",
+    "employees.employee.emails": "email"
   },
   attributes: {
-    "employees.employee": ["id", "department"]
+    "employees.employee": ["id", "department"],
+    "employees.employee.emails.email": ["type"]
   },
   texts: {
-    "employees.employee": "fullname"
+    "employees.employee.emails.email": "value"
   }
 });
 
@@ -41,12 +43,28 @@ var employees = [
   { 
     id: 123,
     department: "Marketting",
-    fullname: "John Doe"
+    fullname: "John Doe",
+    emails: [
+        {
+            type: "home",
+            value: "jd@home.com"
+        },
+        {
+            type: "work",
+            value: "jd@work.com"
+        }
+    ]
   },
   { 
     id: 456,
     department: "Administration",
-    fullname: "Jane Dowell"
+    fullname: "Jane Dowell",
+    emails: [
+        {
+            type: "home",
+            value: "jane_dowell@home.com"
+        }
+    ]
   }
 ];
 
@@ -70,8 +88,19 @@ The previous code will result in a one line unformatted xml corresponding to:
 
 ```xml
 <employees>
-  <employee id="123" department="Marketting">John Doe</employee>
-  <employee id="456" department="Administration">Jane Dowell</employee>
+  <employee id="123" department="Marketting">
+    <fullname>John Doe</fullname>
+    <emails>
+      <email type="home">jd@home.com</email>
+      <email type="work">jd@work.com</email>
+    </emails>
+  </employee>
+  <employee id="456" department="Administration">
+    <fullname>Jane Dowell</fullname>
+    <emails>
+      <email type="home">jane_dowell@home.com</email>
+    </emails>
+  </employee>
 </employees>
 ```
 
@@ -126,16 +155,3 @@ Will display the following Javascritp object:
   }
 }
 ```
-
-License
-=======
-
-MIT License
-
-Copyright (c) <year> <copyright holders>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
