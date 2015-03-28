@@ -36,6 +36,9 @@ var serializer = new Serializer({
   },
   texts: {
     "employees.employee.emails.email": "value"
+  },
+  cdatas: {
+      "employees.employee": ["notes"]
   }
 });
 
@@ -44,6 +47,7 @@ var employees = [
     id: 123,
     department: "Marketting",
     fullname: "John Doe",
+    notes: "Note with some invalid chars: &<>;"
     emails: [
         {
             type: "home",
@@ -90,6 +94,7 @@ The previous code will result in a one line unformatted xml corresponding to:
 <employees>
   <employee id="123" department="Marketting">
     <fullname>John Doe</fullname>
+    <notes><![CDATA[Note with some invalid chars: &<>;]]></notes>
     <emails>
       <email type="home">jd@home.com</email>
       <email type="work">jd@work.com</email>
