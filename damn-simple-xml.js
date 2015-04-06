@@ -227,7 +227,7 @@ function _serialize(root, behavior, fieldPath, level, buffer, callback) {
 function bufferize(buffer, chunk, level, callback) {
     buffer.data += chunk;
     if (buffer.data.length >= 65536 || level === 0) {
-        callback(null, buffer.data);
+        callback(null, buffer.data, level);
         buffer.data = "";
     }
 }
