@@ -180,12 +180,13 @@ function deserialize(xml, callback) {
 function serialize(root, callback) {
     var localBehavior = this.behavior;
     process.nextTick(function() {
-        _serialize(root, localBehavior, root.name, 1, callback); 
+        var buffer = { data: "" };
+        _serialize(root, localBehavior, root.name, 1, buffer, callback); 
     });
 }
 
 
-function _serialize(root, behavior, fieldPath, level, callback) {
+function _serialize(root, behavior, fieldPath, level, buffer, callback) {
 
     // Checks if the root parameter is valid
     if(!rootIsValid(root, callback)) {
@@ -195,16 +196,16 @@ function _serialize(root, behavior, fieldPath, level, callback) {
     // If there is no data associated with the current element, dump a
     // simple autoclosing tag and exits the function. 
     if ((root.data === null) || (root.data === undefined)) {
-        callback(null, "<" + root.name + " />", level - 1);
+        bufferize(buffer, "<" + root.name + " />", level - 1, callback);
         return;
     }
 
     var attrset = null;
     async.series([function(done) {
         // Creates the opening tag
-        callback(null, "<" + root.name, level);
-        attrset = addAttributes(root, behavior, fieldPath, level, callback);
-        var tagtype = closeOpeningTag(root, behavior, fieldPath, level, callback);
+        bufferize(buffer, "<" + root.name, level, callback);
+        attrset = addAttributes(root, behavior, fieldPath, level, buffer, callback);
+        var tagtype = closeOpeningTag(root, behavior, fieldPath, level, buffer, callback);
         if (tagtype !== "autoclose") {
             // done callback is called only if the tag is not auto-closing.
             // We do not want the two other functions to be executed if the
@@ -213,15 +214,23 @@ function _serialize(root, behavior, fieldPath, level, callback) {
         }
     }, function(done) {
         // creates the inner xml data.
-        createTagContent(root, behavior, fieldPath, level, attrset, callback);
+        createTagContent(root, behavior, fieldPath, level, attrset, buffer, callback);
         done();
     }, function(done) {
         // Terminate the current tag.
-        callback(null, "</" + root.name + ">", level - 1);
+        bufferize(buffer, "</" + root.name + ">", level - 1, callback);
         done();
     }]);
 }
 
+
+function bufferize(buffer, chunk, level, callback) {
+    buffer.data += chunk;
+    if (buffer.data.length >= 65536 || level === 0) {
+        callback(null, buffer.data, level);
+        buffer.data = "";
+    }
+}
 
 
 function rootIsValid(root, callback) {
@@ -244,7 +253,7 @@ function rootIsValid(root, callback) {
 
 // Add attributes if any
 // returns an attribute set.
-function addAttributes(root, behavior, fieldPath, level, callback) {
+function addAttributes(root, behavior, fieldPath, level, buffer, callback) {
 
     var attrset = {};
     var attributes = behavior.attributes[fieldPath];
@@ -265,7 +274,7 @@ function addAttributes(root, behavior, fieldPath, level, callback) {
                         " attribute: " + name));
                 return;
             }
-            callback(null, " " + name, level);
+            bufferize(buffer, " " + name, level, callback);
             if (value != null) {
                 var attrValue = "";
                 if (value instanceof Date) {
@@ -279,7 +288,7 @@ function addAttributes(root, behavior, fieldPath, level, callback) {
                     return;
                 }
                 // Add the value only if non-null
-                callback(null, "=\"" + attrValue + "\"", level);
+                bufferize(buffer, "=\"" + attrValue + "\"", level, callback);
             }
         }
     }
@@ -288,7 +297,7 @@ function addAttributes(root, behavior, fieldPath, level, callback) {
 }
 
 
-function closeOpeningTag(root, behavior, fieldPath, level, callback) {
+function closeOpeningTag(root, behavior, fieldPath, level, buffer, callback) {
     // Check if the openig tag is autoclosing or not.
     var attributes = behavior.attributes[fieldPath];
     if (attributes === undefined) {
@@ -299,17 +308,17 @@ function closeOpeningTag(root, behavior, fieldPath, level, callback) {
         textName = "_text";
     }
     if ((root.data === null) || (root.data === undefined)) {
-        callback(null, " />", level - 1);
+        bufferize(buffer, " />", level - 1, callback);
         return "autoclose";
     } else if (isNative(root.data) || (root.data instanceof Date) || 
             (root.data[textName] !== undefined)) {
-        callback(null, ">", level);
+        bufferize(buffer, ">", level, callback);
     } else {
         var fieldCount = countFields(root.data);
         if (attributes.length < fieldCount) {
-            callback(null, ">", level);
+            bufferize(buffer, ">", level, callback);
         } else {
-            callback(null, " />", level - 1);
+            bufferize(buffer, " />", level - 1, callback);
             return "autoclose";
         }
     }
@@ -326,7 +335,7 @@ function isContained(map, fieldPath, elemName) {
 }
 
 
-function createTagContent(root, behavior, fieldPath, level, attrset, callback) {
+function createTagContent(root, behavior, fieldPath, level, attrset, buffer, callback) {
     // create subxml data from sub elements.
     var datatype = typeof(root.data);
     if ((datatype === "string") || (datatype === "boolean") || 
@@ -336,14 +345,14 @@ function createTagContent(root, behavior, fieldPath, level, attrset, callback) {
             iscdata = behavior.cdatas[fieldPath].indexOf(root.name) > -1;
         }
         if (iscdata) {
-            callback(null, "<![CDATA[", level);
+            bufferize(buffer, "<![CDATA[", level, callback);
         }
-        callback(null, root.data.toString(), level);
+        bufferize(buffer, root.data.toString(), level, callback);
         if (iscdata) {
-            callback(null, "]]>", level);
+            bufferize(buffer, "]]>", level, callback);
         }
     } else if (root.data instanceof Date) {
-        callback(null, root.data.toISOString(), level);
+        bufferize(buffer, root.data.toISOString(), level, callback);
     } else if (root.data.isArray) {
         // When data is an array, add all array item to the subxml.
         var itemName = root.name + "Item";
@@ -360,6 +369,7 @@ function createTagContent(root, behavior, fieldPath, level, attrset, callback) {
                     behavior, 
                     fieldPath + "." + itemName, 
                     level + 1, 
+                    buffer,
                     callback);
         }
     } else {
@@ -374,9 +384,9 @@ function createTagContent(root, behavior, fieldPath, level, attrset, callback) {
             if (!attrset[elem]) {
                 if (elem === textName) {
                     if (isNative(root.data[elem])) {
-                        callback(null, root.data[elem], level);
+                        bufferize(buffer, root.data[elem], level, callback);
                     } else if (root.data[elem] instanceof Date) {
-                        callback(null, root.data[elem].toISOString(), level);
+                        bufferize(buffer, root.data[elem].toISOString(), level, callback);
                     } else {
                         callback(new Error("A _text field cannot contain an " +
                                 "object or array."));
@@ -391,7 +401,8 @@ function createTagContent(root, behavior, fieldPath, level, attrset, callback) {
                             },
                             behavior, 
                             fieldPath + "." + elem, 
-                            level + 1, 
+                            level + 1,
+                            buffer,
                             callback);
                 }
             }
