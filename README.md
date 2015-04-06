@@ -3,9 +3,12 @@ damn-simple-xml [![travis-ci build result](https://api.travis-ci.org/formix/damn
 
 [![Join the chat at https://gitter.im/formix/damn-simple-xml](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/formix/damn-simple-xml?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Damn Simple XML (DSX) is an XML deserialization and serialization library with
-a small memory footprint. This is the only XML library that can handle CDATA 
-sections for both serialization and deserialization.
+Dams Simple XML DSX is optimized to serialize JavaScript objects and deserialize 
+XML elements that have been formerly serialized from an object of another 
+programming language (or by DSX). DSX is not meant to be able to handle any 
+kind of free form XML documents. DSX have a small memory footprint. This is 
+the only XML library that can handle CDATA sections for both serialization and 
+deserialization.
 
 [Google Group](https://groups.google.com/forum/?hl=fr#!forum/damn-simple-xml)
 
@@ -17,37 +20,29 @@ Consult The [Release Notes](https://github.com/formix/damn-simple-xml/wiki/Relea
 
 ## Usage
 
+The following usage scenarios are oversimplified. with DSX, you can fine tune 
+and control each serialization behaviors. You can elect define a field to be 
+serialized as a property, a CDATA or define a collection member's child 
+elements. For more informations, see 
+[API Reference](https://github.com/formix/damn-simple-xml/wiki/Api-Reference) 
+reference
+
 ### Serialization
 
 By default, all fields of an object will be serialized as a XML element. You
 can control serialization by providing a `behavior` object telling Damn 
-Simple Xml how to serialize attributes texts, arrays and arrays' items fields:
+Simple Xml how to serialize attributes texts, CDATA, arrays and arrays' 
+items fields:
 
 ```javascript
 var Serializer = require("damn-simple-xml");
-var serializer = new Serializer({
-  arrays: {
-    "employees" : "employee",
-    "employees.employee.emails": "email"
-  },
-  attributes: {
-    "employees.employee": ["id", "department"],
-    "employees.employee.emails.email": ["type"]
-  },
-  texts: {
-    "employees.employee.emails.email": "value"
-  },
-  cdatas: {
-      "employees.employee": ["notes"]
-  }
-});
+var serializer = new Serializer();
 
 var employees = [
   { 
     id: 123,
     department: "Marketting",
     fullname: "John Doe",
-    notes: "Note with some invalid chars: &<>;"
     emails: [
         {
             type: "home",
@@ -92,18 +87,30 @@ The previous code will result in a one line unformatted xml corresponding to:
 
 ```xml
 <employees>
-  <employee id="123" department="Marketting">
+  <employee>
+    <id>123</id>
+    <department>Marketting</department>
     <fullname>John Doe</fullname>
-    <notes><![CDATA[Note with some invalid chars: &<>;]]></notes>
     <emails>
-      <email type="home">jd@home.com</email>
-      <email type="work">jd@work.com</email>
+      <emailsItem>
+        <type>home</type>
+        <value>jd@home.com</value>
+      </emailsItem>
+      <emailsItem>
+        <type>work</type>
+        <value>jd@work.com</value>
+      </emailsItem>
     </emails>
   </employee>
-  <employee id="456" department="Administration">
+  <employee>
+    <id>456</id>
+    <department>Administration</department>
     <fullname>Jane Dowell</fullname>
     <emails>
-      <email type="home">jane_dowell@home.com</email>
+      <emailsItem>
+        <type>home</type>
+        <value>jane_dowell@home.com</value>
+      </emailsItem>
     </emails>
   </employee>
 </employees>
@@ -121,6 +128,7 @@ Given the following XML:
   <firstName>John</firstName>
   <lastName>Doe</lastName>
   <emails>
+    <email type="work">jdoe@work.com</email>
     <email type="personal">john.doe@nobody.com</email>
   <emails>
 </employee>
@@ -128,14 +136,7 @@ Given the following XML:
 
 ```javascript
 var Serializer = require("damn-simple-xml");
-var serializer = new Serializer({
-  arrays: {
-    "employee.emails": "email"
-  },
-  texts: {
-    "employee.emails.email": "value"
-  }
-)};
+var serializer = new Serializer();
 
 serializer.deserialize(xml, function(err, root) {
   console.log(root);
@@ -152,6 +153,10 @@ Will display the following Javascritp object:
     firstName: "John",
     lastName: "Doe",
     emails: [
+      {
+        type: "work",
+        value: "jdoe@work.com"
+      },
       {
         type: "personal",
         value: "john.doe@nobody.com"
