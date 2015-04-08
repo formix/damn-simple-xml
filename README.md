@@ -4,10 +4,10 @@ damn-simple-xml [![travis-ci build result](https://api.travis-ci.org/formix/damn
 [![Join the chat at https://gitter.im/formix/damn-simple-xml](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/formix/damn-simple-xml?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Dams Simple XML DSX is optimized to serialize JavaScript objects and deserialize 
-XML elements that have been formerly serialized from an object of another 
-programming language (or by DSX). DSX is not meant to be able to handle any 
-kind of free form XML documents. DSX have a small memory footprint. This is 
-the only XML library that can handle CDATA sections for both serialization and 
+XML elements that have been formerly serialized from an object in another 
+programming language (or by DSX). DSX is not designed to handle any kind of 
+free form XML documents. DSX have a small memory footprint. It is the only 
+XML library that can handle CDATA sections for both serialization and 
 deserialization.
 
 [Google Group](https://groups.google.com/forum/?hl=fr#!forum/damn-simple-xml)
@@ -21,9 +21,9 @@ Consult The [Release Notes](https://github.com/formix/damn-simple-xml/wiki/Relea
 ## Usage
 
 The following usage scenarios are oversimplified. with DSX, you can fine tune 
-and control each serialization behaviors. You can elect define a field to be 
-serialized as a property, a CDATA or define a collection member's child 
-elements. For more informations, see 
+and control each serialization behaviors. You can choose to define a field to be 
+serialized as an attribute, a CDATA or define a collection child 
+elements' name. For more informations, see 
 [API Reference](https://github.com/formix/damn-simple-xml/wiki/Api-Reference) 
 reference
 
