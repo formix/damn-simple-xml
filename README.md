@@ -21,7 +21,7 @@ Consult The [Release Notes](https://github.com/formix/damn-simple-xml/wiki/Relea
 ## Usage
 
 The following usage scenarios are oversimplified. with DSX, you can fine tune 
-and control each serialization behaviors. You can choose to define a field to be 
+and control each serialization metas. You can choose to define a field to be 
 serialized as an attribute, a CDATA or define a collection child 
 elements' name. For more informations, see 
 [API Reference](https://github.com/formix/damn-simple-xml/wiki/Api-Reference) 
@@ -30,7 +30,7 @@ reference
 ### Serialization
 
 By default, all fields of an object will be serialized as a XML element. You
-can control serialization by providing a `behavior` object telling Damn 
+can control serialization by providing a `meta` object telling Damn 
 Simple Xml how to serialize attributes texts, CDATA, arrays and arrays' 
 items fields:
 
