@@ -10,7 +10,7 @@
     "url": "http://github.com/formix/damn-simple-xml.git"
   },
   "license": "MIT",
-  "main": "damn-simple-xml.js",
+  "main": "lib/index.js",
   "keywords": [
     "xml",
     "serialization",

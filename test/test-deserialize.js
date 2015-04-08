@@ -1,12 +1,10 @@
 
 var fs = require("fs");
 var assert = require("assert");
-var Serializer = require("../damn-simple-xml");
+var Serializer = require("../lib/index").Serializer;
 var EOL = require('os').EOL;
 
 describe("DamnSimpleXml.deserialize()", function() {
-
-
 
 
     describe("simple.xml", function() {

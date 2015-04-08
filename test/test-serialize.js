@@ -1,5 +1,5 @@
 var assert = require("assert");
-var Serializer = require("../damn-simple-xml");
+var Serializer = require("../lib/index").Serializer;
 
 
 
