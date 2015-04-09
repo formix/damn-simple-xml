@@ -285,6 +285,7 @@ describe("DamnSimpleXml.deserialize()", function() {
                     done();
                     return;
                 }
+                delete root.meta;
                 assert.deepEqual(root, expected);
                 done();
             });
