@@ -330,7 +330,7 @@ describe("DamnSimpleXml.deserialize()", function() {
         }); 
 
 
-        it("should deserialize according to behavior.texts.", 
+        it("should deserialize according to meta.texts.", 
         function(done) {
 
             var expected2 = { 
@@ -372,7 +372,31 @@ describe("DamnSimpleXml.deserialize()", function() {
     });
 
 
+    describe("Building meta objects", function() {
 
+        it("should create attributes properly", function(done){
+
+            var xml = "<emails><email type='home' source='A' /></emails>";
+
+            var expectedMeta = {
+                arrays: {},
+                attributes: {
+                    "emails.email": ["type", "source"]
+                },
+                texts: {},
+                cdatas: {}
+            }
+
+            var dsx = new Serializer();
+            dsx.deserialize(xml, function(err, root) {
+                assert.ifError(err);
+                assert.deepEqual(root.meta, expectedMeta);
+                done();
+            });
+
+        });
+
+    });
 
 });
 
