@@ -374,7 +374,7 @@ describe("DamnSimpleXml.deserialize()", function() {
 
     describe("Building meta objects", function() {
 
-        it("should create attributes properly", function(done){
+        it("should define attributes properly", function(done){
 
             var xml = "<emails><email type='home' source='A' /></emails>";
 
@@ -384,6 +384,55 @@ describe("DamnSimpleXml.deserialize()", function() {
                     "emails.email": ["type", "source"]
                 },
                 texts: {},
+                cdatas: {}
+            }
+
+            var dsx = new Serializer();
+            dsx.deserialize(xml, function(err, root) {
+                assert.ifError(err);
+                assert.deepEqual(root.meta, expectedMeta);
+                done();
+            });
+
+        });
+
+
+        it("should define arrays properly", function(done) {
+
+            var xml = "<emails><email><value>q@w.e</value></email>" +
+                "<email><value>a@s.d</value></email></emails>";
+
+            var expectedMeta = {
+                arrays: {
+                    "emails": "email"
+                },
+                attributes: {},
+                texts: {},
+                cdatas: {}
+            }
+
+            var dsx = new Serializer();
+            dsx.deserialize(xml, function(err, root) {
+                assert.ifError(err);
+                assert.deepEqual(root.meta, expectedMeta);
+                done();
+            });
+
+        });
+
+
+        it("should define default texts properly", function(done) {
+
+            var xml = "<emails><email type='home'>q@w.e</email></emails>";
+
+            var expectedMeta = {
+                arrays: {},
+                attributes: {
+                    "emails.email": ["type"]
+                },
+                texts: {
+                    "emails.email": "_text"
+                },
                 cdatas: {}
             }
 
