@@ -421,7 +421,7 @@ describe("DamnSimpleXml.deserialize()", function() {
         });
 
 
-        it("should define default texts properly", function(done) {
+        it("should define texts properly", function(done) {
 
             var xml = "<emails><email type='home'>q@w.e</email></emails>";
 
@@ -434,6 +434,29 @@ describe("DamnSimpleXml.deserialize()", function() {
                     "emails.email": "_text"
                 },
                 cdatas: {}
+            }
+
+            var dsx = new Serializer();
+            dsx.deserialize(xml, function(err, root) {
+                assert.ifError(err);
+                assert.deepEqual(root.meta, expectedMeta);
+                done();
+            });
+
+        });
+
+
+        it("should create cdatas elements properly", function(done) {
+
+            var xml = "<emails><email><![CDATA[<hello!>]]></email></emails>";
+
+            var expectedMeta = {
+                arrays: {},
+                attributes: {},
+                texts: {},
+                cdatas: {
+                    "emails": ["email"]
+                }
             }
 
             var dsx = new Serializer();
