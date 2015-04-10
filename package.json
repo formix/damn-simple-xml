@@ -22,5 +22,6 @@
   },
   "devDependencies": {
     "mocha": "^2.0.1"
+    "istanbul": "^0.3.13"
   }
 }
