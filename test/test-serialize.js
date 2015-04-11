@@ -415,4 +415,36 @@ describe("DamnSimpleXml.serialize()", function() {
 
     });
 
+
+    describe("Using the meta object during serialization", function() {
+
+        it("should take care of the meta object supplied", function(done) {
+
+            var testObj = {
+                owners: ["John", "Jane"]                
+            };
+
+            var dsx2 = new Serializer();
+            var expected = "<list><owners><owner>John</owner><owner>Jane</owner></owners></list>";
+
+            dsx2.serialize({
+                name: "list",
+                data: testObj,
+                meta: {
+                    arrays: {
+                        "list.owners": "owner"
+                    }
+                }
+            }, 
+            function(err, xml, level) {
+                assert.ifError(err);
+                assert.equal(xml, expected);
+                done();
+            });
+
+        });
+
+    });
+
+
 });
