@@ -5,36 +5,41 @@ var Serializer = require("../lib/index").Serializer;
 
 describe("DamnSimpleXml.serialize()", function() {
    
-    var dsx = new Serializer();
-
     describe("Empty and empty-like (falsy) data", function() {
 
         it("should be '<undefined />'", function(done) {
+            
+            var dsx = new Serializer();
+
             var xml = "";
+            dsx.on("xmlchunk", function(chunk) {
+                xml += chunk;
+            });
+
             dsx.serialize({
                 name: "undefined"
-            }, function(err, xmlpart, level) {
-                if (err) throw err;
-                xml += xmlpart;
-                if (level === 0) {
-                    assert.equal(xml, "<undefined />");
-                    done();
-                }
+            }, function(err) {
+                asert.ifError(err);
+                done();
             });
         });
 
         it("should be '<null />'", function(done) {
+           
+            var dsx = new Serializer();
+           
             var xml = "";
+            dsx.on("xmlchunk", function(chunk) {
+                xml += chunk;
+            });
+            
             dsx.serialize({
                 name: "null",
                 data: null
-            }, function(err, xmlpart, level) {
-                if (err) throw err;
-                xml += xmlpart;
-                if (level === 0) {
-                    assert.equal(xml, "<null />");
-                    done();
-                }
+            }, function(err) {
+                assert.ifError(err);
+                assert.equal(xml, "<null />");
+                done();
             });
         });
 
