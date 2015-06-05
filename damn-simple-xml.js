@@ -358,6 +358,8 @@ function createTagContent(root, behavior, fieldPath, level, attrset, buffer, cal
         var itemName = root.name + "Item";
         if (behavior.arrays[fieldPath]) {
             itemName = behavior.arrays[fieldPath];
+        } else if (behavior.arrays["*." + root.name]) {
+            itemName = behavior.arrays["*." + root.name];
         }
         for (var i = 0; i < root.data.length; i++) {
             var item = root.data[i];
@@ -442,10 +444,10 @@ function convert(value) {
 }
 
 
-function createObject(stack, nodeName, arrayNameSet) {
+function createObject(stack, nodeName, arrays) {
     var obj = {};
     var fullName = createNodeName(stack, nodeName);
-    if (arrayNameSet[fullName]) {
+    if (arrays[fullName] || arrays["*." + nodeName]) {
         obj = [];
     }
     return obj;    
@@ -511,4 +513,16 @@ function countFields(obj) {
         count++;
     }
     return count;
+}
+
+
+function mergeArrays(a1, a2) {
+    var target = [];
+    for (var i = 0; i < a1.length; i++) {
+        target.push(a1[i]);
+    }
+    for (var j = 0; j < a2.length; j++) {
+        target.push(a2[j]);
+    }
+    return target;
 }

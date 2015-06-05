@@ -372,7 +372,70 @@ describe("DamnSimpleXml.deserialize()", function() {
 
     });
 
+    
 
+    describe("using '*.' declarators", function() {
+        
+        it("should deserialize arrays at any depth", function(done) {
+
+            var expected = {
+                name: "root",
+                children: [
+                    {
+                        name: "child_1",
+                        children: [
+                            {
+                                name: "child_1_1",
+                                children: []
+                            },
+                            {
+                                name: "child_1_2",
+                                children: []
+                            }
+                        ]
+                    }
+                ]
+            }
+
+            var data = 
+                "<item>" +
+                    "<name>root</name>" +
+                    "<children>" +
+                        "<item>" +
+                            "<name>child_1</name>" +
+                            "<children>" +
+                                "<item>" +
+                                    "<name>child_1_1</name>" +
+                                    "<children/>"+
+                                "</item>" +
+                                "<item>" +
+                                    "<name>child_1_2</name>" +
+                                    "<children/>" +
+                                "</item>" +
+                            "</children>" +                                
+                        "</item>" +
+                    "</children>" +
+                "</item>";
+
+
+           var dsx = new Serializer({
+               arrays: {                  
+                   "*.children": "item"
+               }
+           });
+
+
+           dsx.deserialize(data, function(err, obj) {
+                assert.ifError(err);
+                assert.deepEqual(obj.data, expected);
+               done();
+           });
+
+        });
+
+        // Add other declarators implementation and depth
+
+    });
 
 
 });
