@@ -10,7 +10,6 @@ describe("DamnSimpleXml.serialize()", function() {
         it("should be '<undefined />'", function(done) {
             
             var dsx = new Serializer();
-
             var xml = "";
             dsx.on("xmlchunk", function(chunk) {
                 xml += chunk;
@@ -19,7 +18,7 @@ describe("DamnSimpleXml.serialize()", function() {
             dsx.serialize({
                 name: "undefined"
             }, function(err) {
-                asert.ifError(err);
+                assert.ifError(err);
                 done();
             });
         });
@@ -27,7 +26,6 @@ describe("DamnSimpleXml.serialize()", function() {
         it("should be '<null />'", function(done) {
            
             var dsx = new Serializer();
-           
             var xml = "";
             dsx.on("xmlchunk", function(chunk) {
                 xml += chunk;
@@ -44,47 +42,56 @@ describe("DamnSimpleXml.serialize()", function() {
         });
 
         it("should be '<empty></empty>'", function(done) {
+          
+            var dsx = new Serializer();
             var xml = "";
+            dsx.on("xmlchunk", function(chunk) {
+                xml += chunk;
+            });
+
             dsx.serialize({
                 name: "empty",
                 data: ""
-            }, function(err, xmlpart, level) {
-                if (err) throw err;
-                xml += xmlpart;
-                if (level === 0) {
-                    assert.equal(xml, "<empty></empty>");
-                    done();
-                }
+            }, function(err) {
+                assert.ifError(err);
+                assert.equal(xml, "<empty></empty>");
+                done();
             });
         });
 
         it("should be '<boolean>false</boolean>'", function(done) {
+          
+            var dsx = new Serializer();
             var xml = "";
+            dsx.on("xmlchunk", function(chunk) {
+                xml += chunk;
+            });
+           
             dsx.serialize({
                 name: "boolean",
                 data: false
-            }, function(err, xmlpart, level) {
-                if (err) throw err;
-                xml += xmlpart;
-                if (level === 0) {
-                    assert.equal(xml, "<boolean>false</boolean>");
-                    done();
-                }
+            }, function(err) {
+                assert.ifError(err);
+                assert.equal(xml, "<boolean>false</boolean>");
+                done();
             });
         });
 
         it("should be '<number>0</number>'", function(done) {
+          
+            var dsx = new Serializer();
             var xml = "";
+            dsx.on("xmlchunk", function(chunk) {
+                xml += chunk;
+            });
+            
             dsx.serialize({
                 name: "number",
                 data: 0
-            }, function(err, xmlpart, level) {
-                if (err) throw err;
-                xml += xmlpart;
-                if (level === 0) {
-                    assert.equal(xml, "<number>0</number>");
-                    done();
-                }
+            }, function(err) {
+                assert.ifError(err);
+                assert.equal(xml, "<number>0</number>");
+                done();
             });
         });
 
@@ -93,6 +100,9 @@ describe("DamnSimpleXml.serialize()", function() {
     describe("Simple data at the root node", function() {
         
         it("sould be '<hello>World!</hello>'", function(done) {
+          
+            var dsx = new Serializer();
+           
             var xml = "";
             dsx.serialize({
                 name: "hello", 
@@ -109,6 +119,9 @@ describe("DamnSimpleXml.serialize()", function() {
 
 
         it("should be <date>2011-11-11T11:11:11.111Z</date>", function(done) {
+          
+            var dsx = new Serializer();
+           
             var xml = "";
             dsx.serialize({
                 name: "date",
