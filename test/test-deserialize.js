@@ -22,11 +22,7 @@ describe("DamnSimpleXml.deserialize()", function() {
             function(err, data) {
                 if (err) return done(err);
                 dsx.deserialize(data, function(err, root) {
-                    if (err) {
-                        console.log(err);
-                        done();
-                        return;
-                    }
+                    assert.ifError(err);
                     assert.deepEqual(root.data, expected);
                     done();
                 });
@@ -39,11 +35,7 @@ describe("DamnSimpleXml.deserialize()", function() {
             });
             
             dsx.deserialize(xmlstream, function(err, root) {
-                if (err) {
-                    console.log(err);
-                    done();
-                    return;
-                }
+                assert.ifError(err);
                 assert.deepEqual(root.data, expected);
                 done();
             });
@@ -65,11 +57,7 @@ describe("DamnSimpleXml.deserialize()", function() {
             function(err, data) {
                 if (err) done(err);
                 dsx.deserialize(data, function(err, root) {
-                    if (err) {
-                        console.log(err);
-                        done();
-                        return;
-                    }
+                    assert.ifError(err);
                     assert.strictEqual(root.data.numeric, 10);
                     done();
                 });
@@ -81,11 +69,7 @@ describe("DamnSimpleXml.deserialize()", function() {
             function(err, data) {
                 if (err) done(err);
                 dsx.deserialize(data, function(err, root) {
-                    if (err) {
-                        console.log(err);
-                        done();
-                        return;
-                    }
+                    assert.ifError(err);
                     assert.strictEqual(root.data.boolTrue, true);
                     done();
                 });
@@ -95,13 +79,9 @@ describe("DamnSimpleXml.deserialize()", function() {
         it("'.boolFalse' should be a boolean equal to false", function(done) {
             fs.readFile("test/attr-types.xml", { encoding: "utf8" }, 
             function(err, data) {
-                if (err) done(err);
+                assert.ifError(err);
                 dsx.deserialize(data, function(err, root) {
-                    if (err) {
-                        console.log(err);
-                        done();
-                        return;
-                    }
+                    assert.ifError(err);
                     assert.strictEqual(root.data.boolFalse, false);
                     done();
                 });
@@ -114,13 +94,9 @@ describe("DamnSimpleXml.deserialize()", function() {
             fs.readFile("test/attr-types.xml", { 
                 encoding: "utf8" 
             }, function(err, data) {
-                if (err) done(err);
+                assert.ifError(err);
                 dsx.deserialize(data, function(err, root) {
-                    if (err) {
-                        console.log(err);
-                        done();
-                        return;
-                    }
+                    assert.ifError(err);
                     var expected = new Date("2014-08-31T13:00:00.000Z");
                     assert.strictEqual(
                         root.data.date.toISOString(), 
@@ -154,11 +130,7 @@ describe("DamnSimpleXml.deserialize()", function() {
 
         it("should correspond to expected types", function(done) {
             dsx.deserialize(data, function(err, root) {
-                if (err) {
-                    console.log(err);
-                    done();
-                    return;
-                }
+                assert.ifError(err);
                 assert.deepEqual(root.data, expected);
                 done();
             });
@@ -175,11 +147,7 @@ describe("DamnSimpleXml.deserialize()", function() {
 
         it("should be an array containing two items", function(done) {
             dsx.deserialize(data, function(err, root) {
-                if (err) {
-                    console.log(err);
-                    done();
-                    return;
-                }
+                assert.ifError(err);
                 assert.equal(root.data.length, 2);
                 done();
             });
@@ -188,11 +156,7 @@ describe("DamnSimpleXml.deserialize()", function() {
         it("should contains an employee with only one language as an " +
                 "object.", function(done) {
             dsx.deserialize(data, function(err, root) {
-                if (err) {
-                    console.log(err);
-                    done();
-                    return;
-                }
+                assert.ifError(err);
                 assert.ok(root.data[0].languages["language"]);
                 done();
             });
@@ -207,11 +171,7 @@ describe("DamnSimpleXml.deserialize()", function() {
                 }
             });
             dsx.deserialize(data, function(err, root) {
-                if (err) {
-                    console.log(err);
-                    done();
-                    return;
-                }
+                assert.ifError(err);
                 assert.ok(root.data[0].languages.length == 1);
                 done();
             });
@@ -220,11 +180,7 @@ describe("DamnSimpleXml.deserialize()", function() {
         it("should contains an employee with many languages as an " +
                 "array.", function(done) {
             dsx.deserialize(data, function(err, root) {
-                if (err) {
-                    console.log(err);
-                    done();
-                    return;
-                }
+                assert.ifError(err);
                 assert.ok(root.data[1].languages.length > 0);
                 done();
             });
@@ -244,11 +200,7 @@ describe("DamnSimpleXml.deserialize()", function() {
         it("should contain a string with invalid xml " +
                 "characters", function(done) {
             dsx.deserialize(data, function(err, root) {
-                if (err) {
-                    console.log(err);
-                    done();
-                    return;
-                }
+                assert.ifError(err);
                 assert.equal(root.data, 
                         "This is an <unparsed /> cdata block.");
                 done();
@@ -260,19 +212,32 @@ describe("DamnSimpleXml.deserialize()", function() {
 
     describe("mixed-attribute-text.xml", function() {
         var expected = {
-            name: "employee",
-            data: {
-                name: "John Doe",
-                emails: [{
-                    type: "home",
-                    _text: "jdoe@home.com"
-                }, {
-                    type: "work",
-                    _text: "john.doe@work.com"
+            "name": "employee",
+            "data": {
+                "name": "John Doe",
+                "emails": [{
+                    "type": "home",
+                    "_text": "jdoe@home.com"
+                },
+                {
+                    "type": "work",
+                    "_text": "john.doe@work.com"
                 }]
+            },
+            "options": {
+                "arrays": {
+                    "employee.emails": "email"
+                },
+                "attributes": {
+                    "employee.emails.email": ["type"]
+                },
+                "texts": {
+                    "employee.emails.email": "_text"
+                },
+                "cdatas": {}
             }
-        };
-        
+        }
+
         var dsx = new Serializer(); 
 
         it("should correspond to the expected object", function(done) {
@@ -280,12 +245,7 @@ describe("DamnSimpleXml.deserialize()", function() {
                 encoding: "utf8"
             });
             dsx.deserialize(data, function(err, root) {
-                if (err) {
-                    console.log(err);
-                    done();
-                    return;
-                }
-                delete root.meta;
+                assert.ifError(err);
                 assert.deepEqual(root, expected);
                 done();
             });
@@ -317,11 +277,7 @@ describe("DamnSimpleXml.deserialize()", function() {
             });
 
             dsx.deserialize(data, function(err, root) {
-                if (err) {
-                    console.log(err);
-                    done();
-                    return;
-                }
+                assert.ifError(err);
                 assert.deepEqual(root.data, expected);
                 done();
                 
@@ -358,11 +314,7 @@ describe("DamnSimpleXml.deserialize()", function() {
 
 
             dsx2.deserialize(data, function(err, root) {
-                if (err) {
-                    console.log(err);
-                    done();
-                    return;
-                }
+                assert.ifError(err);
                 assert.deepEqual(root.data, expected2);
                 done();
             });
@@ -372,13 +324,13 @@ describe("DamnSimpleXml.deserialize()", function() {
     });
 
 
-    describe("Building meta objects", function() {
+    describe("Building options objects", function() {
 
         it("should define attributes properly", function(done){
 
             var xml = "<emails><email type='home' source='A' /></emails>";
 
-            var expectedMeta = {
+            var expectedOptions = {
                 arrays: {},
                 attributes: {
                     "emails.email": ["type", "source"]
@@ -390,7 +342,7 @@ describe("DamnSimpleXml.deserialize()", function() {
             var dsx = new Serializer();
             dsx.deserialize(xml, function(err, root) {
                 assert.ifError(err);
-                assert.deepEqual(root.meta, expectedMeta);
+                assert.deepEqual(root.options, expectedOptions);
                 done();
             });
 
@@ -402,7 +354,7 @@ describe("DamnSimpleXml.deserialize()", function() {
             var xml = "<emails><email><value>q@w.e</value></email>" +
                 "<email><value>a@s.d</value></email></emails>";
 
-            var expectedMeta = {
+            var expectedOptions = {
                 arrays: {
                     "emails": "email"
                 },
@@ -414,7 +366,7 @@ describe("DamnSimpleXml.deserialize()", function() {
             var dsx = new Serializer();
             dsx.deserialize(xml, function(err, root) {
                 assert.ifError(err);
-                assert.deepEqual(root.meta, expectedMeta);
+                assert.deepEqual(root.options, expectedOptions);
                 done();
             });
 
@@ -425,7 +377,7 @@ describe("DamnSimpleXml.deserialize()", function() {
 
             var xml = "<emails><email type='home'>q@w.e</email></emails>";
 
-            var expectedMeta = {
+            var expectedOptions = {
                 arrays: {},
                 attributes: {
                     "emails.email": ["type"]
@@ -439,7 +391,7 @@ describe("DamnSimpleXml.deserialize()", function() {
             var dsx = new Serializer();
             dsx.deserialize(xml, function(err, root) {
                 assert.ifError(err);
-                assert.deepEqual(root.meta, expectedMeta);
+                assert.deepEqual(root.options, expectedOptions);
                 done();
             });
 
@@ -450,7 +402,7 @@ describe("DamnSimpleXml.deserialize()", function() {
 
             var xml = "<emails><email><![CDATA[<hello!>]]></email></emails>";
 
-            var expectedMeta = {
+            var expectedOptions = {
                 arrays: {},
                 attributes: {},
                 texts: {},
@@ -462,7 +414,7 @@ describe("DamnSimpleXml.deserialize()", function() {
             var dsx = new Serializer();
             dsx.deserialize(xml, function(err, root) {
                 assert.ifError(err);
-                assert.deepEqual(root.meta, expectedMeta);
+                assert.deepEqual(root.options, expectedOptions);
                 done();
             });
 
