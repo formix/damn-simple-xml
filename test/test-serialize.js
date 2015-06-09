@@ -102,18 +102,18 @@ describe("DamnSimpleXml.serialize()", function() {
         it("sould be '<hello>World!</hello>'", function(done) {
           
             var dsx = new Serializer();
-           
             var xml = "";
+            dsx.on("xmlchunk", function(chunk) {
+                xml += chunk;
+            });
+            
             dsx.serialize({
                 name: "hello", 
                 data: "World!"
-            }, function(err, xmlpart, level) {
-                if (err) throw err;
-                xml += xmlpart;
-                if (level === 0) {
-                    assert.equal(xml, "<hello>World!</hello>");
-                    done();
-                }
+            }, function(err) {
+                assert.ifError(err);
+                assert.equal(xml, "<hello>World!</hello>");
+                done();
             });
         });
 
@@ -121,18 +121,18 @@ describe("DamnSimpleXml.serialize()", function() {
         it("should be <date>2011-11-11T11:11:11.111Z</date>", function(done) {
           
             var dsx = new Serializer();
-           
             var xml = "";
+            dsx.on("xmlchunk", function(chunk) {
+                xml += chunk;
+            });
+            
             dsx.serialize({
                 name: "date",
                 data: new Date("2011-11-11T11:11:11.111Z")
-            }, function (err, xmlpart, level) {
-                if (err) throw err;
-                xml += xmlpart;
-                if (level === 0) {
-                    assert.equal(xml, "<date>2011-11-11T11:11:11.111Z</date>");
-                    done();
-                }
+            }, function (err) {
+                assert.ifError(err);
+                assert.equal(xml, "<date>2011-11-11T11:11:11.111Z</date>");
+                done();
             });
         });
 
@@ -145,61 +145,70 @@ describe("DamnSimpleXml.serialize()", function() {
 
         it("should be <email>nobody@nowhere.com</email>", 
         function(done) {
+            
+            var dsx = new Serializer();
             var xml = "";
+            dsx.on("xmlchunk", function(chunk) {
+                xml += chunk;
+            });
+            
             dsx.serialize({
                 name: "email",
                 data: {
                     _text: "nobody@nowhere.com"
                 }
-            }, function(err, xmlpart, level) {
-                if (err) throw err;
-                xml += xmlpart;
-                if (level === 0) {
-                    assert.equal(xml, "<email>nobody@nowhere.com</email>");
-                    done();
-                }
+            }, function(err) {
+                assert.ifError(err);
+                assert.equal(xml, "<email>nobody@nowhere.com</email>");
+                done();
             });
         });
 
         it("should be <email>nobody@nowhere.com</email> with a declared text field", 
         function(done) {
-            var dsx2 = new Serializer({
+            
+            var dsx = new Serializer({
                 texts: {
                     "email": "value"
                 }
             });
             var xml = "";
-            dsx2.serialize({
+            dsx.on("xmlchunk", function(chunk) {
+                xml += chunk;
+            });
+
+            dsx.serialize({
                 name: "email",
                 data: {
                     value: "nobody@nowhere.com"
                 }
-            }, function(err, xmlpart, level) {
-                if (err) throw err;
-                xml += xmlpart;
-                if (level === 0) {
-                    assert.equal(xml, "<email>nobody@nowhere.com</email>");
-                    done();
-                }
+            }, 
+            function(err) {
+                assert.ifError(err);
+                assert.equal(xml, "<email>nobody@nowhere.com</email>");
+                done();
             });
         });
 
     });
 
 
-    describe("Defining an array in behaviors", function() {
+    describe("Defining an array in options", function() {
         
         it("should be an array of department in the departments node", 
         function(done) {
-            var xml = "";
             
-            var dsx2 = new Serializer({
+            var dsx = new Serializer({
                 arrays: {
                     "departments": "department"
                 }
             });
-
-            dsx2.serialize({
+            var xml = "";
+            dsx.on("xmlchunk", function(chunk) {
+                xml += chunk;
+            });
+            
+            dsx.serialize({
                 name: "departments",
                 data: [
                     {
@@ -209,17 +218,14 @@ describe("DamnSimpleXml.serialize()", function() {
                         name: "Shipping"
                     }
                 ]
-            }, function(err, xmlpart, level) {
-                if (err) throw err;
-                xml += xmlpart;
-                if (level === 0) {
-                    assert.equal(xml, 
-                        "<departments>" +
-                        "<department><name>Sales</name></department>" +
-                        "<department><name>Shipping</name></department>" +
-                        "</departments>");
-                    done();
-                }
+            }, function(err) {
+                assert.ifError(err);
+                assert.equal(xml, 
+                    "<departments>" +
+                    "<department><name>Sales</name></department>" +
+                    "<department><name>Shipping</name></department>" +
+                    "</departments>");
+                done();
             });
 
         });
@@ -270,7 +276,7 @@ describe("DamnSimpleXml.serialize()", function() {
     });
 
 
-    describe("Defining attributes in behaviors", function() {
+    describe("Defining attributes in options", function() {
 
         it("should be a root containing one attributes", function(done) {
             var dsx2 = new Serializer({
@@ -404,7 +410,7 @@ describe("DamnSimpleXml.serialize()", function() {
     });
 
 
-    describe("Defining cdatas in behaviors",function() {
+    describe("Defining cdatas in options",function() {
 
         it("should create a CDATA wrapper", function(done) {
 
