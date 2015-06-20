@@ -231,19 +231,22 @@ describe("DamnSimpleXml.serialize()", function() {
         });
 
 
-        it("should be an array of dep, in the deps node under the org node", 
+        it("should be an array of department, in the departements node under the organization node", 
         function(done) {
 
-            var xml = "";            
-
-            var dsx2 = new Serializer({
+            var dsx = new Serializer({
                 arrays: {
-                    "organisation.departments": "department"
+                    "organization.departments": "department"
                 }
             });
 
-            dsx2.serialize({
-                name: "organisation",
+            var xml = "";            
+            dsx.on("xmlchunk", function(chunk) {
+                xml += chunk;
+            });
+
+            dsx.serialize({
+                name: "organization",
                 data: {
                     title: "OrgCorp",
                     departments: [
@@ -255,20 +258,17 @@ describe("DamnSimpleXml.serialize()", function() {
                         }
                     ]
                 }
-            }, function(err, xmlpart, level) {
-                if (err) throw err;
-                xml += xmlpart;
-                if (level == 0) {
-                    assert.equal(xml, 
-                        "<organisation>" +
-                            "<title>OrgCorp</title>" +
-                            "<departments>" +
-                              "<department><name>Sales</name></department>" +
-                              "<department><name>Shipping</name></department>" +
-                            "</departments>" +
-                        "</organisation>");
-                    done();
-                }
+            }, function(err) {
+                assert.ifError(err);
+                assert.equal(xml, 
+                    "<organization>" +
+                        "<title>OrgCorp</title>" +
+                        "<departments>" +
+                          "<department><name>Sales</name></department>" +
+                          "<department><name>Shipping</name></department>" +
+                        "</departments>" +
+                    "</organization>");
+                done();
             });
 
         });
