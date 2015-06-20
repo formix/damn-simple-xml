@@ -418,25 +418,26 @@ describe("DamnSimpleXml.serialize()", function() {
 
         it("should create a CDATA wrapper", function(done) {
 
-            var dsx2 = new Serializer({
+            var dsx = new Serializer({
                 cdatas: {
                     "test": "invalidxml"
                 }
             });
 
             var xml = "";
-            dsx2.serialize({
+            dsx.on("xmlchunk", function(chunk) {
+                xml += chunk;
+            });
+
+            dsx.serialize({
                 name: "test",
                 data: {
                     invalidxml: "> this is invalid xml <"
                 }
-            }, function(err, xmlpart, level) {
+            }, function(err) {
                 assert.ifError(err);
-                xml += xmlpart;
-                if (level === 0) {
-                    assert.equal(xml, "<test><invalidxml><![CDATA[> this is invalid xml <]]></invalidxml></test>");
-                    done();
-                }
+                assert.equal(xml, "<test><invalidxml><![CDATA[> this is invalid xml <]]></invalidxml></test>");
+                done();
             });
 
         });
@@ -452,19 +453,24 @@ describe("DamnSimpleXml.serialize()", function() {
                 owners: ["John", "Jane"]                
             };
 
-            var dsx2 = new Serializer();
+            var dsx = new Serializer();
             var expected = "<list><owners><owner>John</owner><owner>Jane</owner></owners></list>";
 
-            dsx2.serialize({
+            var xml = "";
+            dsx.on("xmlchunk", function(chunk) {
+                xml += chunk;
+            });
+
+            dsx.serialize({
                 name: "list",
                 data: testObj,
-                meta: {
+                options: {
                     arrays: {
                         "list.owners": "owner"
                     }
                 }
             }, 
-            function(err, xml, level) {
+            function(err) {
                 assert.ifError(err);
                 assert.equal(xml, expected);
                 done();
