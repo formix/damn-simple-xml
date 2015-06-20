@@ -278,40 +278,45 @@ describe("DamnSimpleXml.serialize()", function() {
 
     describe("Defining attributes in options", function() {
 
-        it("should be a root containing one attributes", function(done) {
-            var dsx2 = new Serializer({
+        it("should be a root containing one attribute", function(done) {
+            var dsx = new Serializer({
                 attributes: {
                     "email" : ["type"]
                 }
             });
 
             var xml = "";
-            dsx2.serialize({
+            dsx.on("xmlchunk", function(chunk) {
+                xml += chunk;
+            });
+
+            dsx.serialize({
                 name: "email",
                 data: {
                     type: "personnal",
                     _text: "nobody@nowhere.com"
                 }
-            }, function(err, xmlpart, level) {
-                if (err) throw err;
-                xml += xmlpart;
-                if (level === 0) {
-                    assert.equal(xml, '<email type="personnal">nobody@nowhere.com</email>');
-                    done();
-                }
+            }, function(err) {
+                assert.ifError(err);
+                assert.equal(xml, '<email type="personnal">nobody@nowhere.com</email>');
+                done();
             });
         });
 
 
         it("should allow many attribute definitions in child node", function(done) {
-            var dsx2 = new Serializer({
+            var dsx = new Serializer({
                 attributes: {
                     "department.supervisor" : ["number", "birthDate"]
                 }
             });
   
             var xml = "";          
-            dsx2.serialize({
+            dsx.on("xmlchunk", function(chunk) {
+                xml += chunk;
+            });
+
+            dsx.serialize({
                 name: "department",
                 data: {
                     name: "Sales and Marketting",
@@ -322,26 +327,23 @@ describe("DamnSimpleXml.serialize()", function() {
                         lastName: "Doe"
                     }
                 }
-            }, function(err, xmlpart, level) {
-                if (err) throw err;
-                xml += xmlpart;
-                if (level === 0) {
-                    assert.equal(xml, "<department>" +
-                                        "<name>Sales and Marketting</name>" +
-                                        "<supervisor number=\"122\" " +
-                                                "birthDate=\"1972-02-16T00:00:00.000Z\">" +
-                                            "<firstName>John</firstName>" +
-                                            "<lastName>Doe</lastName>" +
-                                        "</supervisor>" +
-                                      "</department>");
-                    done();
-                }
+            }, function(err) {
+                assert.ifError(err);
+                assert.equal(xml, "<department>" +
+                                    "<name>Sales and Marketting</name>" +
+                                    "<supervisor number=\"122\" " +
+                                            "birthDate=\"1972-02-16T00:00:00.000Z\">" +
+                                        "<firstName>John</firstName>" +
+                                        "<lastName>Doe</lastName>" +
+                                    "</supervisor>" +
+                                  "</department>");
+                done();
             });
         });
 
 
         it("should be working even within an array", function(done) {
-            var dsx2 = new Serializer({
+            var dsx = new Serializer({
                 attributes: {
                     "department.employees.employee" : ["number"]
                 },
@@ -350,8 +352,12 @@ describe("DamnSimpleXml.serialize()", function() {
                 }
             });
 
-            var xml = "";            
-            dsx2.serialize({
+            var xml = "";
+            dsx.on("xmlchunk", function(chunk) {
+                xml += chunk;
+            });
+
+            dsx.serialize({
                 name: "department",
                 data: {
                     name: "Sales and Marketting",
@@ -363,21 +369,18 @@ describe("DamnSimpleXml.serialize()", function() {
                         }
                     ]
                 }
-            }, function(err, xmlpart, level) {
-                if (err) throw err;
-                xml += xmlpart;
-                if (level === 0) {
-                    assert.equal(xml, "<department>" +
-                                        "<name>Sales and Marketting</name>" +
-                                        "<employees>" +
-                                            "<employee number=\"122\">" +
-                                                "<firstName>John</firstName>" +
-                                                "<lastName>Doe</lastName>" +
-                                            "</employee>" +
-                                        "</employees>" +
-                                      "</department>");
-                    done();
-                }
+            }, function(err) {
+                assert.ifError(err);
+                assert.equal(xml, "<department>" +
+                                    "<name>Sales and Marketting</name>" +
+                                    "<employees>" +
+                                        "<employee number=\"122\">" +
+                                            "<firstName>John</firstName>" +
+                                            "<lastName>Doe</lastName>" +
+                                        "</employee>" +
+                                    "</employees>" +
+                                  "</department>");
+                done();
             });
         });
 
@@ -385,25 +388,26 @@ describe("DamnSimpleXml.serialize()", function() {
         it("should be <email type=\"personal\" />", 
         function(done) {
 
-            var dsx2 = new Serializer({
+            var dsx = new Serializer({
                 attributes: {
                     "email": ["type"]
                 }
             });
 
             var xml = "";
-            dsx2.serialize({
+            dsx.on("xmlchunk", function(chunk) {
+                xml += chunk;
+            });
+
+            dsx.serialize({
                 name: "email",
                 data: {
                     type: "personal"
                 }
-            }, function(err, xmlpart, level) {
-                if (err) throw err;
-                xml += xmlpart;
-                if (level === 0) {
-                    assert.equal(xml, "<email type=\"personal\" />");
-                    done();
-                }
+            }, function(err) {
+                assert.ifError(err);
+                assert.equal(xml, "<email type=\"personal\" />");
+                done();
             });
         });
 
