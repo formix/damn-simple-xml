@@ -481,4 +481,5 @@ describe("DamnSimpleXml.serialize()", function() {
     });
 
 
+
 });
