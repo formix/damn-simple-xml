@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/formix/damn-simple-xml.png?label=ready&title=Ready)](https://waffle.io/formix/damn-simple-xml)
 damn-simple-xml [![travis-ci build result](https://api.travis-ci.org/formix/damn-simple-xml.svg?branch=master "damn-simple-xml master")](https://travis-ci.org/search/damn-simple-xml)
 ===============
 
